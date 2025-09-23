@@ -1,0 +1,94 @@
+/* Fundo da página */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #e7efff;
+  font-family: Arial, sans-serif;
+}
+
+/* Logo */
+.logo {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #3a86ff;
+  margin: 0;
+}
+.logo span {
+  color: #9b5de5;
+}
+
+/* Subtítulo */
+.subtitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Card */
+.card {
+  background: #fff;
+  padding: 40px;
+  border-radius: 25px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 350px;
+  text-align: center;
+}
+
+/* Título do card */
+.welcome {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.description {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+/* Labels */
+label {
+  display: block;
+  text-align: left;
+  margin: 10px 0 5px;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+/* Inputs */
+input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+  background-color: #f9faff;
+  outline: none;
+  transition: border 0.3s;
+}
+input:focus {
+  border: 1px solid #9b5de5;
+}
+
+/* Botão */
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: #fff;
+  border: 2px solid #9b5de5;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.btn:hover {
+  background: #9b5de5;
+  color: #fff;
+}

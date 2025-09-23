@@ -1,0 +1,25 @@
+<div class="container">
+  <h1 class="logo">Market<span>Meet</span></h1>
+  <h2 class="subtitle">criar sua conta</h2>
+
+  <div class="card">
+    <h2 class="welcome">Bem-Vindo</h2>
+    <p class="description">crie sua conta para descobrir produtos incríveis</p>
+
+    <form [formGroup]="cadastroForm" (ngSubmit)="onSubmit()">
+      <label>Nome de usuário</label>
+      <input type="text" formControlName="username" placeholder="Digite seu Nome de usuário" />
+
+      <label>Data de nascimento</label>
+      <input type="text" formControlName="birthDate" placeholder="DD/MM/AAAA" />
+
+      <label>E-mail</label>
+      <input type="email" formControlName="email" placeholder="Digite seu e-mail" />
+
+      <label>Crie uma senha</label>
+      <input type="password" formControlName="password" placeholder="******" />
+
+      <button type="submit" class="btn">Criar</button>
+    </form>
+  </div>
+</div>
