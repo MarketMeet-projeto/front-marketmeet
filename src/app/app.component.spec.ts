@@ -58,13 +58,13 @@ describe('AppComponent (Cadastro)', () => {
     expect(password.errors).toBeNull();
   });
 
-  it('birthDate field should be required', () => {
-    const birthDate = component.cadastroForm.controls['birthDate'];
-    expect(birthDate.valid).toBeFalse();
-    expect(birthDate.errors?.['required']).toBeTruthy();
+  it('birth_date field should be required', () => {
+    const birth_date = component.cadastroForm.controls['birth_date'];
+    expect(birth_date.valid).toBeFalse();
+    expect(birth_date.errors?.['required']).toBeTruthy();
 
-    birthDate.setValue('1990-01-01');
-    expect(birthDate.errors).toBeNull();
+    birth_date.setValue('1990-01-01');
+    expect(birth_date.errors).toBeNull();
   });
 
   it('should toggle password visibility (type attribute changes)', () => {
@@ -86,7 +86,7 @@ describe('AppComponent (Cadastro)', () => {
 
     component.cadastroForm.patchValue({
       username: 'Usuario Teste',
-      birthDate: '01/01/1990',
+      birth_date: '01/01/1990',
       email: 'usuario@exemplo.com',
       password: 'abcdef'
     });
@@ -148,9 +148,9 @@ describe('AppComponent (Cadastro)', () => {
     expect(errorMessage.nativeElement.textContent).toContain('Mínimo de 6 caracteres');
   });
 
-  it('should display error message for birthDate when empty', () => {
-    const birthDateInput = fixture.debugElement.query(By.css('#birthDate')).nativeElement;
-    birthDateInput.value = '';
+  it('should display error message for birth_date when empty', () => {
+    const birth_dateInput = fixture.debugElement.query(By.css('#birth_date')).nativeElement;
+    birth_dateInput.value = '';
     fixture.detectChanges();
 
     component.onSubmit();

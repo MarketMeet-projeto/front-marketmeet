@@ -11,7 +11,11 @@
       <input type="text" formControlName="username" placeholder="Digite seu Nome de usuário" />
 
       <label>Data de nascimento</label>
-      <input type="text" formControlName="birthDate" placeholder="DD/MM/AAAA" />
+      <input type="text" 
+             formControlName="birth_date" 
+             placeholder="DD/MM/AAAA"
+             (input)="formatDate($event)"
+             maxlength="10" />
 
       <label>E-mail</label>
       <input type="email" formControlName="email" placeholder="Digite seu e-mail" />

@@ -15,14 +15,14 @@ export class AppComponent {
   submitted = false;
   showPassword = false;
 
-  private apiUrl = 'http://10.51.47.1/:3000/api/users/create'; // URL do backend
+  private apiUrl = 'http://10.51.47.41:3000/api/users/create'; // URL do backend
 
   constructor(private fb: FormBuilder, private http: HttpClient) {
     this.cadastroForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      birthDate: ['', Validators.required]
+      birth_date: ['', Validators.required]
     });
   }
 
@@ -51,5 +51,25 @@ export class AppComponent {
   get username() { return this.cadastroForm.get('username'); }
   get email() { return this.cadastroForm.get('email'); }
   get password() { return this.cadastroForm.get('password'); }
-  get birthDate() { return this.cadastroForm.get('birthDate'); }
+  get birth_date() { return this.cadastroForm.get('birth_date'); }
+
+  formatDate(event: any) {
+    let value = event.target.value;
+    value = value.replace(/\D/g, ''); // Remove tudo que não é número
+    
+    if (value.length > 8) {
+      value = value.substring(0, 8);
+    }
+    
+    if (value.length >= 2) {
+      value = value.substring(0, 2) + (value.length > 2 ? '/' : '') + value.substring(2);
+    }
+    if (value.length >= 5) {
+      value = value.substring(0, 5) + (value.length > 5 ? '/' : '') + value.substring(5);
+    }
+
+    this.cadastroForm.patchValue({
+      birth_date: value
+    }, { emitEvent: false });
+  }
 }
