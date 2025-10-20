@@ -11,13 +11,10 @@
 
 /* Logo */
 .logo {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #3a86ff;
-  margin: 0;
-}
-.logo span {
-  color: #9b5de5;
+  background: linear-gradient(90deg, #3C87ff , #9747ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Subtítulo */
