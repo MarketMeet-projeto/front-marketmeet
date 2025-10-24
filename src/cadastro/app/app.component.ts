@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http'; // Importar HttpClient
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Router } from '@angular/router'; // Importar HttpClient
 
 @Component({
-  selector: 'app-root',
+  selector: 'app-cadastro',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule], // adicionar HttpClientModule
+  imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
@@ -17,7 +18,11 @@ export class AppComponent {
 
   private apiUrl = 'http://10.51.47.41:3000/api/users/create'; // URL do backend
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private router: Router
+  ) {
     this.cadastroForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
@@ -52,6 +57,10 @@ export class AppComponent {
   get email() { return this.cadastroForm.get('email'); }
   get password() { return this.cadastroForm.get('password'); }
   get birth_date() { return this.cadastroForm.get('birth_date'); }
+
+  voltarParaLogin() {
+    this.router.navigate(['/login']);
+  }
 
   formatDate(event: any) {
     let value = event.target.value;

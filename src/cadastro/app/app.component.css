@@ -89,3 +89,21 @@ input:focus {
   background: #9b5de5;
   color: #fff;
 }
+
+.login-link {
+  margin-top: 20px;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #9b5de5;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 5px;
+}
+
+.btn-link:hover {
+  color: #7b4eb5;
+}

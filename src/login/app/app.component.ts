@@ -4,10 +4,11 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AuthService } from './services/auth.service';
+import { Router } from '@angular/router';
 
 
 @Component({
-  selector: 'app-root',
+  selector: 'app-login',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule, HttpClientModule],
   providers: [AuthService],
@@ -22,7 +23,11 @@ export class AppComponent implements OnInit {
   submitted = false;
   private apiUrl = 'http://10.51.47.41:3000/api/users/login'; // URL do backend
 
-  constructor(private fb: FormBuilder, private authService: AuthService) { }
+  constructor(
+    private fb: FormBuilder, 
+    private authService: AuthService,
+    private router: Router
+  ) { }
 
   ngOnInit() {
     this.loginForm = this.fb.group({
@@ -74,6 +79,6 @@ export class AppComponent implements OnInit {
   }
 
   onSignUp() {
-    alert('Redirecionar para página de cadastro');
+    this.router.navigate(['/cadastro']);
   }
 }
