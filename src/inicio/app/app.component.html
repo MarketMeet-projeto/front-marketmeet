@@ -1,0 +1,140 @@
+<div class="landing-container">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <!-- Logo -->
+      <div class="logo-section">
+        <div class="logo-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="8" fill="url(#gradient)"/>
+            <path d="M12 28L20 16L28 28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#8B5CF6"/>
+                <stop offset="100%" style="stop-color:#3B82F6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-text">MarketMeet</span>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="navigation">
+        <button class="nav-link" (click)="onComunidade()">Comunidade</button>
+        <button class="nav-link" (click)="onEntrar()">Entrar</button>
+        <button class="btn-primary" (click)="onPrimeiroAcesso()">Primeiro acesso</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="hero-section">
+      <!-- Hero Title -->
+      <h1 class="hero-title">
+        Descubra os <span class="highlight">melhores produtos</span> através<br>
+        de pessoas reais
+      </h1>
+
+      <!-- Hero Description -->
+      <p class="hero-description">
+        Uma rede social onde você encontra indicações autênticas, avaliações honestas e<br>
+        descobre produtos incríveis através da experiência de uma comunidade apaixonada<br>
+        por compras inteligentes.
+      </p>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="btn-primary-large" (click)="onExplorarIndicacoes()">
+          Explorar Indicações
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="btn-secondary-large" (click)="onVerComoFunciona()">
+          Ver Como Funciona
+        </button>
+      </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+      <h2 class="section-title">Como Funciona</h2>
+      
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card">
+          <div class="feature-icon chat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 12H8.01M12 12H12.01M16 12H16.01M21 12C21 16.418 16.97 20 12 20C10.5286 20 9.14629 19.6889 7.94358 19.1366L3 20L4.39152 16.291C3.51558 15.0617 3 13.5957 3 12C3 7.582 7.03 4 12 4C16.97 4 21 7.582 21 12Z" 
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Compartilhe suas opiniões</h3>
+          <p>Publique suas opiniões sobre produtos que você comprou, use e recomenda para outros.</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card">
+          <div class="feature-icon star-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" 
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Descubra Produtos</h3>
+          <p>Encontre produtos incríveis através das indicações de pessoas com gostos similares aos seus.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card">
+          <div class="feature-icon connect-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 4C18.2091 4 20 5.79086 20 8C20 10.2091 18.2091 12 16 12C13.7909 12 12 10.2091 12 8C12 5.79086 13.7909 4 16 4Z" 
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 20H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 16V20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 12C5.79086 12 4 10.2091 4 8C4 5.79086 5.79086 4 8 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Conecte-se</h3>
+          <p>Siga pessoas com bom gosto e construa uma rede de confiança para suas decisões de compra.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <!-- Brand Section -->
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="8" fill="url(#gradient)"/>
+            <path d="M12 28L20 16L28 28" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#8B5CF6"/>
+                <stop offset="100%" style="stop-color:#3B82F6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="footer-brand-name">MarketMeet</span>
+        </div>
+        <p class="footer-description">A rede social para descobrir os melhores produtos através de pessoas reais.</p>
+      </div>
+
+      <!-- Support Links -->
+      <div class="footer-links">
+        <h4>Suporte</h4>
+        <ul>
+          <li><a href="/central-ajuda">Central de ajuda</a></li>
+          <li><a href="/contato">Contato</a></li>
+          <li><a href="/privacidade">Privacidade</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+</div>
