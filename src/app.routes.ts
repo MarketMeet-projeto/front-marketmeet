@@ -3,11 +3,15 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: 'login',
-    loadChildren: () => import('./login/app/app.routes').then(m => m.routes)
+    loadComponent: () => import('./login/app/app.component').then(m => m.AppComponent)
   },
   {
     path: 'cadastro',
-    loadChildren: () => import('./cadastro/app/app.routes').then(m => m.routes)
+    loadComponent: () => import('./cadastro/app/app.component').then(m => m.AppComponent)
+  },
+  {
+    path: 'perfil-config',
+    loadComponent: () => import('./perfil_config/app/app.component').then(m => m.AppComponent)
   },
   {
     path: '',

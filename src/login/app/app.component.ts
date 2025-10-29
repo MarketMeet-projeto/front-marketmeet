@@ -4,13 +4,18 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AuthService } from './services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, HttpClientModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    RouterModule
+  ],
   providers: [AuthService],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
@@ -78,7 +83,10 @@ export class AppComponent implements OnInit {
     alert('Funcionalidade de recuperação de senha');
   }
 
-  onSignUp() {
+  onSignUp(event?: Event) {
+    if (event) {
+      event.preventDefault();
+    }
     this.router.navigate(['/cadastro']);
   }
 }
