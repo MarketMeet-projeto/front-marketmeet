@@ -1,0 +1,100 @@
+<!-- Barra Superior -->
+<header class="navbar">
+  <div class="logo">MarketMeet</div>
+  <div class="search-container">
+    <input type="text" class="search-input" placeholder="Buscar pessoas" />
+  </div>
+  <button class="filter-button">Filtros</button>
+</header>
+
+<!-- Página de Perfil -->
+<main class="profile-page">
+  <section class="profile-card">
+    <div class="profile-header">
+      <img
+        src="https://via.placeholder.com/120"
+        alt="Foto de perfil"
+        class="profile-avatar"
+      />
+
+      <div class="profile-details">
+        <h2 class="profile-name">{{ user.name }}</h2>
+        <p class="profile-username">{{ user.username }}</p>
+        <p class="profile-bio">{{ user.description }}</p>
+
+        <div class="profile-stats">
+          <div class="stat-item">
+            <p class="stat-value">{{ user.followers }}</p>
+            <p class="stat-label">seguidores</p>
+          </div>
+          <div class="stat-item">
+            <p class="stat-value">{{ user.following }}</p>
+            <p class="stat-label">seguindo</p>
+          </div>
+          <div class="stat-item">
+            <p class="stat-value">{{ user.rating }}</p>
+            <p class="stat-label">avaliação</p>
+          </div>
+        </div>
+
+        <div class="profile-actions">
+          <button
+            class="btn-follow"
+            [class.following]="isFollowing"
+            (click)="toggleFollow()"
+          >
+            {{ isFollowing ? 'Seguindo' : 'Seguir' }}
+          </button>
+          <button class="btn-message" (click)="sendMessage()">
+            Mensagem
+          </button>
+        </div>
+
+        <p class="profile-footer">
+          {{ user.location }} — Desde {{ user.joined }}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Abas -->
+  <section class="tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab === 'favoritos'"
+      (click)="setActiveTab('favoritos')"
+    >
+      Favoritos
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'avaliacoes'"
+      (click)="setActiveTab('avaliacoes')"
+    >
+      Avaliações
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'atividades'"
+      (click)="setActiveTab('atividades')"
+    >
+      Atividades
+    </button>
+  </section>
+
+  <!-- Conteúdo Dinâmico -->
+  <section class="tab-content" *ngIf="activeTab === 'favoritos'">
+    <p>Nenhum produto favoritado ainda.</p>
+    <p>Os produtos que você marcar como favoritos aparecerão aqui.</p>
+  </section>
+
+  <section class="tab-content" *ngIf="activeTab === 'avaliacoes'">
+    <p>Nenhuma avaliação feita ainda.</p>
+    <p>Suas avaliações aparecerão aqui.</p>
+  </section>
+
+  <section class="tab-content" *ngIf="activeTab === 'atividades'">
+    <p>Sem atividades recentes.</p>
+    <p>Suas últimas interações aparecerão aqui.</p>
+  </section>
+</main>

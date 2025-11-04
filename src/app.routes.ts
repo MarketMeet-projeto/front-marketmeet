@@ -14,12 +14,36 @@ export const routes: Routes = [
     loadComponent: () => import('./cadastro/app/app.component').then(m => m.AppComponent)
   },
   {
+    path: 'timeline',
+    loadComponent: () => import('./timeline/app/app.component').then(m => m.AppComponent),
+    canActivate: [], // TODO: Adicionar AuthGuard quando implementar autenticação
+    data: { requiresAuth: true }
+  },
+  {
+    path: 'perfil',
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./perfil/app/app.component').then(m => m.AppComponent)
+      },
+      {
+        path: 'config',
+        loadComponent: () => import('./perfil_config/app/app.component').then(m => m.AppComponent)
+      }
+    ]
+  },
+  {
     path: 'perfil-config',
-    loadComponent: () => import('./perfil_config/app/app.component').then(m => m.AppComponent)
+    redirectTo: 'perfil/config',
+    pathMatch: 'full'
   },
   {
     path: '',
     redirectTo: 'inicio',
     pathMatch: 'full'
+  },
+  {
+    path: '**',
+    redirectTo: 'inicio'
   }
 ];

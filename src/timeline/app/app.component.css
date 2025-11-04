@@ -1,0 +1,46 @@
+/* home-page.component.css */
+.layout {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "sidebar-left feed";
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: 64px auto;
+  min-height: 100vh;
+  background: #f9fafb;
+}
+
+.header {
+  grid-area: header;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.sidebar-left {
+  grid-area: sidebar-left;
+  padding: 1rem;
+}
+
+.feed {
+  grid-area: feed;
+  padding: 1.5rem;
+}
+* {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f9f9fb;
+  color: #333;
+}
+.main-layout {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 40px;
+}
+
+

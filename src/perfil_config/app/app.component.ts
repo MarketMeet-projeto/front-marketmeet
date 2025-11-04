@@ -9,13 +9,14 @@ import {
   ValidationErrors 
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [CommonModule, ReactiveFormsModule, RouterModule]
 })
 export class AppComponent implements OnInit {
   title = 'Configurações do Perfil';
@@ -107,7 +108,7 @@ export class AppComponent implements OnInit {
     };
   }
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private router: Router) {
     this.profileForm = this.fb.group({
       fullName: ['Ana Sha', [Validators.required, this.validateFullName()]],
       username: ['anasha', [Validators.required, this.validateUsername()]],
@@ -223,7 +224,20 @@ export class AppComponent implements OnInit {
   onSubmit() {
     if (this.profileForm.valid) {
       console.log('Formulário enviado:', this.profileForm.value);
+      // Após salvar com sucesso, redireciona para a página inicial
+      this.router.navigate(['/inicio']);
     }
+  }
+
+  // Método para voltar à página anterior
+  onVoltar() {
+    this.router.navigate(['/inicio']);
+  }
+
+  // Método para ir para a página de login (caso precise fazer logout)
+  onLogout() {
+    // Aqui você pode adicionar a lógica de logout quando implementar
+    this.router.navigate(['/login']);
   }
 
   /**

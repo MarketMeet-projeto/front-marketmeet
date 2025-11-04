@@ -1,0 +1,426 @@
+.feed-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 600px;
+  margin: auto;
+}
+
+.novo-post-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.nova-publicacao-btn {
+  flex: 1;
+  text-align: left;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: #f2f2f2;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nova-publicacao-btn:hover {
+  background: #e9ecef;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.fechar-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.fechar-btn:hover {
+  color: #333;
+}
+
+.modal-body {
+  padding: 16px;
+}
+
+.post-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  resize: vertical;
+  margin-bottom: 16px;
+  font-family: inherit;
+}
+
+.post-actions {
+  margin-bottom: 16px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.add-produto {
+  background: none;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-produto.active {
+  background-color: #e3f2fd;
+  border-color: #2196f3;
+  color: #2196f3;
+}
+
+.upload-label {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-label:hover {
+  background-color: #f5f5f5;
+}
+
+.produto-section {
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.produto-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.rating-input {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rating-input select {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modal-footer {
+  padding: 16px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.publicar-btn {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.publicar-btn:hover:not(:disabled) {
+  background-color: #1976d2;
+}
+
+.publicar-btn:disabled {
+  background-color: #bdbdbd;
+  cursor: not-allowed;
+}
+
+.post-box {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  gap: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+
+  input {
+    flex: 1;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    background: #f2f2f2;
+  }
+
+  button {
+    padding: 8px 12px;
+    background: #000;
+    color: white;
+    border: none;
+    border-radius: 6px;
+  }
+}
+
+.post {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+
+  .post-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .user-info {
+    flex: 1;
+    margin-left: 10px;
+
+    span {
+      color: gray;
+      font-size: 12px;
+    }
+  }
+
+  .produto-img {
+    width: 100px;
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+
+  .produto-info {
+    font-size: 14px;
+    color: #333;
+
+    .rating {
+      color: #f39c12;
+    }
+  }
+
+  .descricao {
+    margin-top: 10px;
+  }
+
+  .post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+    font-size: 14px;
+    color: gray;
+}
+
+.post-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.action-button {
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.action-button:hover {
+    background: #f5f5f5;
+}
+
+.like-button {
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.like-button:hover {
+    background-color: rgba(231, 76, 60, 0.1);
+    border-color: rgba(231, 76, 60, 0.2);
+}
+
+.like-button.liked {
+    color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.1);
+    border-color: rgba(231, 76, 60, 0.2);
+}
+
+.heart-icon {
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center;
+    will-change: transform;
+}
+
+.like-count {
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 20px;
+}
+
+.share-button:hover {
+    transform: scale(1.05);
+}
+
+.share-button:active {
+    transform: scale(0.95);
+}
+
+.ver-produto {
+    background: #eee;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ver-produto:hover {
+    background: #e0e0e0;
+    transform: translateY(-1px);
+}
+
+.ver-produto:active {
+    transform: translateY(0);
+}
+/* Animação de curtir (batimento) */
+@keyframes heart-pulse {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.2);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  75% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Animação do botão Publicar (click feedback) */
+@keyframes button-click {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Animação do botão Compartilhar */
+@keyframes share-bounce {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.2);
+  }
+  60% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Classes que aplicam as animações */
+.publicar-btn.clicked {
+  animation: button-click 0.3s ease;
+}
+
+.share-button.clicked {
+  animation: share-bounce 0.3s ease;
+}
+
+.heart-icon.animate {
+  animation: heart-pulse 0.4s ease;
+}
+
+
+}
