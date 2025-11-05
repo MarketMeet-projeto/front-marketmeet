@@ -3,6 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { likeAnimation, publishAnimation, heartBeatAnimation } from '../animations/post.animations';
 
+interface Comment {
+  id: string;
+  authorId: string;
+  authorName: string;
+  authorAvatar: string;
+  text: string;
+  createdAt: Date;
+}
+
 interface Post {
   id: string;
   author: {
@@ -27,8 +36,10 @@ interface Post {
     curtidas: number;
     curtidoPor: string[];
     compartilhamentos: number;
+    comments: Comment[];
     animationState?: 'inactive' | 'active';
   };
+  showComments?: boolean;
 }
 
 @Component({
@@ -63,7 +74,9 @@ export class FeedComponent {
       interacoes: {
         curtidas: 24,
         curtidoPor: [],
-        compartilhamentos: 0
+        compartilhamentos: 0,
+        comments: [],
+        animationState: 'inactive'
       }
     },
     {
@@ -81,7 +94,9 @@ export class FeedComponent {
       interacoes: {
         curtidas: 10,
         curtidoPor: [],
-        compartilhamentos: 0
+        compartilhamentos: 0,
+        comments: [],
+        animationState: 'inactive'
       }
     }
   ];
@@ -179,7 +194,9 @@ export class FeedComponent {
       interacoes: {
         curtidas: 0,
         curtidoPor: [],
-        compartilhamentos: 0
+        compartilhamentos: 0,
+        comments: [],
+        animationState: 'inactive'
       }
     };
     
@@ -267,5 +284,67 @@ export class FeedComponent {
     button.classList.add('clicked');
     setTimeout(() => button.classList.remove('clicked'), 300);
     this.compartilharPost(postId);
+  }
+
+  // Novo método para adicionar comentário
+  addComment(postId: string, commentText: string): void {
+    if (!commentText.trim()) return;
+
+    const newComment: Comment = {
+      id: Date.now().toString(),
+      authorId: this.currentUser.id,
+      authorName: this.currentUser.nome,
+      authorAvatar: this.currentUser.avatar,
+      text: commentText.trim(),
+      createdAt: new Date()
+    };
+
+    this.posts = this.posts.map(post => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          interacoes: {
+            ...post.interacoes,
+            comments: [...post.interacoes.comments, newComment]
+          }
+        };
+      }
+      return post;
+    });
+  }
+
+  // Método para mostrar/ocultar comentários
+  toggleComments(postId: string): void {
+    this.posts = this.posts.map(post => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          showComments: !post.showComments
+        };
+      }
+      return post;
+    });
+  }
+
+  // Método para deletar comentário
+  deleteComment(postId: string, commentId: string): void {
+    this.posts = this.posts.map(post => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          interacoes: {
+            ...post.interacoes,
+            comments: post.interacoes.comments.filter(comment => comment.id !== commentId)
+          }
+        };
+      }
+      return post;
+    });
+  }
+
+  // Método para limpar o formulário de novo comentário
+  novoComentario: string = '';
+  limparComentario(): void {
+    this.novoComentario = '';
   }
 }
