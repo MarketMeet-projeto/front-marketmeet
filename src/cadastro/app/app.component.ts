@@ -38,16 +38,24 @@ export class AppComponent {
   onSubmit() {
     this.submitted = true;
     if (this.cadastroForm.valid) {
+      // Log dos dados que serão enviados
+      console.log('📤 Dados enviados para o backend:', this.cadastroForm.value);
+      
       // Enviar dados para o backend
       this.http.post(this.apiUrl, this.cadastroForm.value).subscribe({
         next: (res) => {
+          console.log('✅ Resposta do backend:', res);
           alert('Conta criada com sucesso!');
           this.cadastroForm.reset();
           this.submitted = false;
+          // Navegar para login após sucesso
+          this.router.navigate(['/login']);
         },
         error: (err) => {
-          console.error(err);
-          alert('Ocorreu um erro ao criar a conta.');
+          console.error('❌ Erro ao criar conta:', err);
+          console.error('Status:', err.status);
+          console.error('Mensagem:', err.error?.message || err.error?.error || err.message);
+          alert(`Erro ao criar conta:\n${err.error?.error || err.message || 'Erro desconhecido'}`);
         }
       });
     }

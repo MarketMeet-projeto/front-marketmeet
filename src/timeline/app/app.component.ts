@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
 import { HeaderComponent } from './header/header.component';
 import { SidebarCategoriasComponent } from './sidebar-categorias/sidebar-categorias.component';
 import { SidebarSugestoesComponent } from './sidebar-sugestoes/sidebar-sugestoes.component';
 import { FeedComponent } from './feed/feed.component';
+import { AuthService } from '../../login/app/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +16,7 @@ import { FeedComponent } from './feed/feed.component';
   imports: [
     CommonModule,
     RouterModule,
+    HttpClientModule,
     HeaderComponent,
     SidebarCategoriasComponent,
     SidebarSugestoesComponent,
@@ -24,7 +27,10 @@ export class AppComponent {
   isLoading = false;
   error: string | null = null;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   // Navegação para outras páginas com tratamento de erros
   async navigateToProfile() {
@@ -66,7 +72,15 @@ export class AppComponent {
   async logout() {
     try {
       this.isLoading = true;
-      // TODO: Implementar lógica de logout
+      console.log('🚪 Realizando logout...');
+      
+      // Chamar método de logout do AuthService
+      this.authService.logout();
+      
+      console.log('✅ Logout realizado com sucesso');
+      alert('Logout realizado com sucesso!');
+      
+      // Redirecionar para login
       await this.router.navigate(['/login']);
     } catch (error) {
       this.error = 'Erro ao realizar logout';

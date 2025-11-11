@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 import { likeAnimation, publishAnimation, heartBeatAnimation } from '../animations/post.animations';
+import { FeedService } from '../services/feed.service';
 
 interface Comment {
   id: string;
@@ -45,61 +47,13 @@ interface Post {
 @Component({
   selector: 'app-feed',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './feed.component.html',
   styleUrls: ['./feed.component.css'],
   animations: [likeAnimation, publishAnimation, heartBeatAnimation]
 })
 export class FeedComponent {
-  posts: Post[] = [
-    {
-      id: '1',
-      author: {
-        id: '2',
-        nome: 'Ana Silva',
-        username: '@anaSilva',
-        avatar: 'assets/ana.jpg'
-      },
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      content: {
-        texto: 'Finalmente troquei meu iPhone antigo e que diferença! A câmera é impressionante...'
-      },
-      produto: {
-        id: '1',
-        nome: 'iPhone 15 Pro',
-        categoria: 'Smartphones',
-        nota: 5,
-        imagem: 'assets/iphone15pro.jpg'
-      },
-      interacoes: {
-        curtidas: 24,
-        curtidoPor: [],
-        compartilhamentos: 0,
-        comments: [],
-        animationState: 'inactive'
-      }
-    },
-    {
-      id: '2',
-      author: {
-        id: '3',
-        nome: 'Carlos Mendes',
-        username: '@carlosmnds',
-        avatar: 'assets/carlos.jpg'
-      },
-      createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
-      content: {
-        texto: 'Recomendo muito essa loja, ótimo atendimento!'
-      },
-      interacoes: {
-        curtidas: 10,
-        curtidoPor: [],
-        compartilhamentos: 0,
-        comments: [],
-        animationState: 'inactive'
-      }
-    }
-  ];
+  posts: Post[] = [];
   modalAberto = false;
   novoPost = {
     texto: '',
@@ -121,6 +75,22 @@ export class FeedComponent {
     username: '@usuario',
     avatar: 'assets/user.png'
   };
+
+  constructor(private feedService: FeedService) {
+    // Inscrever-se aos posts do serviço que conecta ao backend
+    this.feedService.posts$.subscribe((posts: any) => {
+      // Mapear para o tipo local Post com campos extras para comentários
+      this.posts = posts.map((post: any) => ({
+        ...post,
+        interacoes: {
+          ...post.interacoes,
+          comments: [],
+          animationState: 'inactive' as const
+        },
+        showComments: false
+      }));
+    });
+  }
 
   abrirModal(): void {
     this.modalAberto = true;
@@ -180,42 +150,21 @@ export class FeedComponent {
   }
 
   publicar(novaPublicacao: { descricao: string; produto?: { nome: string; categoria: string; nota: number; imagem?: string } }): void {
-    const newPost: Post = {
-      id: Date.now().toString(),
-      author: this.currentUser,
-      createdAt: new Date(),
-      content: {
-        texto: novaPublicacao.descricao
-      },
-      produto: novaPublicacao.produto ? {
-        id: Date.now().toString(),
-        ...novaPublicacao.produto
-      } : undefined,
-      interacoes: {
-        curtidas: 0,
-        curtidoPor: [],
-        compartilhamentos: 0,
-        comments: [],
-        animationState: 'inactive'
-      }
-    };
-    
-    this.posts = [newPost, ...this.posts];
+    this.feedService.addPost(novaPublicacao.descricao, novaPublicacao.produto as any);
     this.fecharModal();
   }
 
   curtirPost(postId: string): void {
+    // Chamar o serviço para curtir
+    this.feedService.toggleLike(postId);
+
+    // Atualizar animação localmente
     this.posts = this.posts.map(post => {
       if (post.id === postId) {
-        const curtido = post.interacoes.curtidoPor.includes(this.currentUser.id);
         return {
           ...post,
           interacoes: {
             ...post.interacoes,
-            curtidas: curtido ? post.interacoes.curtidas - 1 : post.interacoes.curtidas + 1,
-            curtidoPor: curtido 
-              ? post.interacoes.curtidoPor.filter(id => id !== this.currentUser.id)
-              : [...post.interacoes.curtidoPor, this.currentUser.id],
             animationState: 'active'
           }
         };
@@ -241,18 +190,8 @@ export class FeedComponent {
   }
 
   compartilharPost(postId: string): void {
-    this.posts = this.posts.map(post => {
-      if (post.id === postId) {
-        return {
-          ...post,
-          interacoes: {
-            ...post.interacoes,
-            compartilhamentos: post.interacoes.compartilhamentos + 1
-          }
-        };
-      }
-      return post;
-    });
+    // Chamar o serviço para compartilhar
+    this.feedService.sharePost(postId);
   }
   
   
@@ -301,11 +240,12 @@ export class FeedComponent {
 
     this.posts = this.posts.map(post => {
       if (post.id === postId) {
+        const comments = post.interacoes.comments || [];
         return {
           ...post,
           interacoes: {
             ...post.interacoes,
-            comments: [...post.interacoes.comments, newComment]
+            comments: [...comments, newComment]
           }
         };
       }
@@ -330,11 +270,12 @@ export class FeedComponent {
   deleteComment(postId: string, commentId: string): void {
     this.posts = this.posts.map(post => {
       if (post.id === postId) {
+        const comments = post.interacoes.comments || [];
         return {
           ...post,
           interacoes: {
             ...post.interacoes,
-            comments: post.interacoes.comments.filter(comment => comment.id !== commentId)
+            comments: comments.filter((comment: Comment) => comment.id !== commentId)
           }
         };
       }

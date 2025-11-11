@@ -45,14 +45,20 @@ export class AppComponent implements OnInit {
     this.submitted = true;
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
+      console.log('📤 Tentando fazer login com:', { email });
+      
       this.authService.login(email, password).subscribe({
         next: (response) => {
-          console.log('Login realizado com sucesso:', response);
+          console.log('✅ Login realizado com sucesso!');
+          console.log('🔐 Token salvo:', this.authService.getToken()?.substring(0, 20) + '...');
           alert('Login realizado com sucesso!');
+          // Navegar para timeline após sucesso
+          this.router.navigate(['/timeline']);
         },
         error: (error) => {
-          console.error('Erro ao fazer login:', error);
-          alert('Erro ao fazer login. Por favor, verifique suas credenciais.');
+          console.error('❌ Erro ao fazer login:', error);
+          const errorMessage = error.error?.error || error.error?.message || error.message || 'Erro desconhecido';
+          alert(`Erro ao fazer login:\n${errorMessage}`);
         }
       });
     }

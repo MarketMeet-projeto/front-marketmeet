@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from './app/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -16,7 +17,7 @@ export const routes: Routes = [
   {
     path: 'timeline',
     loadComponent: () => import('./timeline/app/app.component').then(m => m.AppComponent),
-    canActivate: [], // TODO: Adicionar AuthGuard quando implementar autenticação
+    canActivate: [AuthGuard],
     data: { requiresAuth: true }
   },
   {
@@ -24,11 +25,13 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./perfil/app/app.component').then(m => m.AppComponent)
+        loadComponent: () => import('./perfil/app/app.component').then(m => m.AppComponent),
+        canActivate: [AuthGuard]
       },
       {
         path: 'config',
-        loadComponent: () => import('./perfil_config/app/app.component').then(m => m.AppComponent)
+        loadComponent: () => import('./perfil_config/app/app.component').then(m => m.AppComponent),
+        canActivate: [AuthGuard]
       }
     ]
   },
