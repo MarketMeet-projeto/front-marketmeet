@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
 import { HeaderComponent } from './header/header.component';
 import { SidebarCategoriasComponent } from './sidebar-categorias/sidebar-categorias.component';
 import { SidebarSugestoesComponent } from './sidebar-sugestoes/sidebar-sugestoes.component';
@@ -16,7 +15,6 @@ import { AuthService } from '../../login/app/services/auth.service';
   imports: [
     CommonModule,
     RouterModule,
-    HttpClientModule,
     HeaderComponent,
     SidebarCategoriasComponent,
     SidebarSugestoesComponent,

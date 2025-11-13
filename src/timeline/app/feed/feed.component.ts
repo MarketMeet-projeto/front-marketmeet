@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { likeAnimation, publishAnimation, heartBeatAnimation } from '../animations/post.animations';
 import { FeedService } from '../services/feed.service';
+import { AuthService } from '../../../login/app/services/auth.service';
 
 interface Comment {
   id: string;
@@ -47,12 +47,12 @@ interface Post {
 @Component({
   selector: 'app-feed',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './feed.component.html',
   styleUrls: ['./feed.component.css'],
   animations: [likeAnimation, publishAnimation, heartBeatAnimation]
 })
-export class FeedComponent {
+export class FeedComponent implements OnInit {
   posts: Post[] = [];
   modalAberto = false;
   novoPost = {
@@ -76,7 +76,10 @@ export class FeedComponent {
     avatar: 'assets/user.png'
   };
 
-  constructor(private feedService: FeedService) {
+  constructor(
+    private feedService: FeedService,
+    private authService: AuthService
+  ) {
     // Inscrever-se aos posts do serviço que conecta ao backend
     this.feedService.posts$.subscribe((posts: any) => {
       // Mapear para o tipo local Post com campos extras para comentários
@@ -90,6 +93,20 @@ export class FeedComponent {
         showComments: false
       }));
     });
+  }
+
+  ngOnInit(): void {
+    // Obter informações do usuário autenticado do AuthService
+    const authenticatedUser = this.authService.getCurrentUser();
+    if (authenticatedUser) {
+      this.currentUser = {
+        id: authenticatedUser.id_user?.toString() || authenticatedUser.id?.toString() || '1',
+        nome: authenticatedUser.username || 'Usuário',
+        username: '@' + (authenticatedUser.username || 'usuario').toLowerCase(),
+        avatar: authenticatedUser.avatar || 'assets/user.png'
+      };
+      console.log('👤 FeedComponent - Usuário carregado:', this.currentUser);
+    }
   }
 
   abrirModal(): void {

@@ -49,9 +49,12 @@ export class AppComponent implements OnInit {
       
       this.authService.login(email, password).subscribe({
         next: (response) => {
+          console.log('📥 Resposta do servidor:', response);
           console.log('✅ Login realizado com sucesso!');
           console.log('🔐 Token salvo:', this.authService.getToken()?.substring(0, 20) + '...');
-          alert('Login realizado com sucesso!');
+          const user = this.authService.getCurrentUser();
+          console.log('👤 Usuário logado:', user);
+          alert(`Login realizado com sucesso!\nBem-vindo, ${user?.username || 'Usuário'}!`);
           // Navegar para timeline após sucesso
           this.router.navigate(['/timeline']);
         },

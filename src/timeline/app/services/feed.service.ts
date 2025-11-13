@@ -28,12 +28,12 @@ export class FeedService {
     const authenticatedUser = this.authService.getCurrentUser();
     if (authenticatedUser) {
       this.currentUser = {
-        id: authenticatedUser.id?.toString() || '1',
-        nome: authenticatedUser.name || authenticatedUser.username || 'Usuário',
-        username: authenticatedUser.username || '@usuario',
+        id: authenticatedUser.id_user?.toString() || authenticatedUser.id?.toString() || '1',
+        nome: authenticatedUser.username || 'Usuário',
+        username: '@' + (authenticatedUser.username || 'usuario').toLowerCase(),
         avatar: authenticatedUser.avatar || 'assets/user.png'
       };
-      console.log('👤 Usando usuário autenticado:', this.currentUser);
+      console.log('👤 FeedService - Usando usuário autenticado:', this.currentUser);
     }
 
     // Carregar posts do backend ao iniciar
@@ -169,6 +169,17 @@ export class FeedService {
   }
 
   addPost(content: string, produto?: { nome: string; categoria: string; nota: number; imagem: string }): void {
+    // Atualizar o currentUser com os dados mais recentes do AuthService
+    const authenticatedUser = this.authService.getCurrentUser();
+    if (authenticatedUser) {
+      this.currentUser = {
+        id: authenticatedUser.id_user?.toString() || authenticatedUser.id?.toString() || '1',
+        nome: authenticatedUser.username || 'Usuário',
+        username: '@' + (authenticatedUser.username || 'usuario').toLowerCase(),
+        avatar: authenticatedUser.avatar || 'assets/user.png'
+      };
+    }
+
     // Construir objeto com apenas campos que têm valor
     const postData: any = {
       id_user: parseInt(this.currentUser.id, 10),  // Converter para number
@@ -184,6 +195,7 @@ export class FeedService {
     }
 
     console.log('📤 Enviando post com dados:', postData);
+    console.log('🔍 Token no momento do POST:', this.authService.getToken()?.substring(0, 20) + '...');
 
     this.http.post<any>(`${this.apiUrl}/posts/create`, postData).subscribe({
       next: (response) => {
@@ -217,6 +229,17 @@ export class FeedService {
 
   // Criar post (async/await)
   async addPostAsync(content: string, produto?: { nome: string; categoria: string; nota: number; imagem: string }): Promise<void> {
+    // Atualizar o currentUser com os dados mais recentes do AuthService
+    const authenticatedUser = this.authService.getCurrentUser();
+    if (authenticatedUser) {
+      this.currentUser = {
+        id: authenticatedUser.id_user?.toString() || authenticatedUser.id?.toString() || '1',
+        nome: authenticatedUser.username || 'Usuário',
+        username: '@' + (authenticatedUser.username || 'usuario').toLowerCase(),
+        avatar: authenticatedUser.avatar || 'assets/user.png'
+      };
+    }
+
     // Construir objeto com apenas campos que têm valor
     const postData: any = {
       id_user: parseInt(this.currentUser.id, 10),  // Converter para number

@@ -55,7 +55,9 @@ export class AuthService {
    * Obter o token JWT do localStorage
    */
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    const token = localStorage.getItem(this.tokenKey);
+    console.log('🔍 [AuthService.getToken()] Token recuperado:', token ? token.substring(0, 20) + '...' : 'null');
+    return token;
   }
 
   /**
