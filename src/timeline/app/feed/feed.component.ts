@@ -3,7 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { likeAnimation, publishAnimation, heartBeatAnimation } from '../animations/post.animations';
 import { FeedService } from '../services/feed.service';
+<<<<<<< HEAD
 import { AuthService } from '../../../services/auth.service';
+=======
+import { AuthService } from '../../../login/app/services/auth.service';
+>>>>>>> e730141bbc6ca3f57dc444b7eb43e503745aaf79
 
 interface Comment {
   id: string;
