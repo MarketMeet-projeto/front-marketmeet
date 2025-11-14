@@ -169,7 +169,6 @@ export class FeedService {
   }
 
   addPost(content: string, produto?: { nome: string; categoria: string; nota: number; imagem: string }): void {
-<<<<<<< HEAD
     console.group('📝 [FeedService] Criando novo post');
     
     // Verificar token ANTES de fazer qualquer coisa
@@ -180,10 +179,6 @@ export class FeedService {
     const authenticatedUser = this.authService.getCurrentUser();
     console.log('👥 Usuário autenticado:', authenticatedUser);
     
-=======
-    // Atualizar o currentUser com os dados mais recentes do AuthService
-    const authenticatedUser = this.authService.getCurrentUser();
->>>>>>> e730141bbc6ca3f57dc444b7eb43e503745aaf79
     if (authenticatedUser) {
       this.currentUser = {
         id: authenticatedUser.id_user?.toString() || authenticatedUser.id?.toString() || '1',
@@ -191,12 +186,9 @@ export class FeedService {
         username: '@' + (authenticatedUser.username || 'usuario').toLowerCase(),
         avatar: authenticatedUser.avatar || 'assets/user.png'
       };
-<<<<<<< HEAD
       console.log('✅ currentUser atualizado:', this.currentUser);
     } else {
       console.warn('⚠️ Usuário não autenticado!');
-=======
->>>>>>> e730141bbc6ca3f57dc444b7eb43e503745aaf79
     }
 
     // Construir objeto com apenas campos que têm valor
@@ -212,13 +204,9 @@ export class FeedService {
       if (produto.nome) postData.product_url = produto.nome;
     }
 
-<<<<<<< HEAD
     console.log('📤 Payload a enviar:', postData);
     console.log('🎯 Endpoint:', `${this.apiUrl}/posts/create`);
-=======
-    console.log('📤 Enviando post com dados:', postData);
     console.log('🔍 Token no momento do POST:', this.authService.getToken()?.substring(0, 20) + '...');
->>>>>>> e730141bbc6ca3f57dc444b7eb43e503745aaf79
 
     this.http.post<any>(`${this.apiUrl}/posts/create`, postData).subscribe({
       next: (response) => {
