@@ -7,7 +7,7 @@ import { tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://10.51.47.41:3000/api/users';
+  private apiUrl = 'http://localhost:3000/api/users';
   private tokenKey = 'auth_token';
   private currentUserSubject = new BehaviorSubject<any>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -55,7 +55,9 @@ export class AuthService {
    * Obter o token JWT do localStorage
    */
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    const token = localStorage.getItem(this.tokenKey);
+    console.log('🔍 [AuthService.getToken()] Token recuperado:', token ? token.substring(0, 20) + '...' : 'null');
+    return token;
   }
 
   /**
@@ -94,6 +96,6 @@ export class AuthService {
    */
   getCurrentUserId(): string | null {
     const user = this.getCurrentUser();
-    return user?.id || null;
+    return user?.id_user || null;
   }
 }

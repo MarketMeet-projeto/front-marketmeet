@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { Post, User } from '../models/feed.model';
-import { AuthService } from '../../../login/app/services/auth.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FeedService {
-  private apiUrl = 'http://10.51.47.41:3000/api'; // Base URL do backend
+  private apiUrl = 'http://localhost:3000/api'; // Base URL do backend
   
   private currentUser: User = {
     id: '1',
@@ -28,12 +28,12 @@ export class FeedService {
     const authenticatedUser = this.authService.getCurrentUser();
     if (authenticatedUser) {
       this.currentUser = {
-        id: authenticatedUser.id?.toString() || '1',
-        nome: authenticatedUser.name || authenticatedUser.username || 'Usuário',
-        username: authenticatedUser.username || '@usuario',
+        id: authenticatedUser.id_user?.toString() || authenticatedUser.id?.toString() || '1',
+        nome: authenticatedUser.username || 'Usuário',
+        username: '@' + (authenticatedUser.username || 'usuario').toLowerCase(),
         avatar: authenticatedUser.avatar || 'assets/user.png'
       };
-      console.log('👤 Usando usuário autenticado:', this.currentUser);
+      console.log('👤 FeedService - Usando usuário autenticado:', this.currentUser);
     }
 
     // Carregar posts do backend ao iniciar
@@ -169,9 +169,30 @@ export class FeedService {
   }
 
   addPost(content: string, produto?: { nome: string; categoria: string; nota: number; imagem: string }): void {
+    console.group('📝 [FeedService] Criando novo post');
+    
+    // Verificar token ANTES de fazer qualquer coisa
+    const token = this.authService.getToken();
+    console.log('🔐 Token disponível?', token ? '✅ ' + token.substring(0, 20) + '...' : '❌ NÃO');
+    
+    // Atualizar o currentUser com os dados mais recentes do AuthService
+    const authenticatedUser = this.authService.getCurrentUser();
+    console.log('👥 Usuário autenticado:', authenticatedUser);
+    
+    if (authenticatedUser) {
+      this.currentUser = {
+        id: authenticatedUser.id_user?.toString() || authenticatedUser.id?.toString() || '1',
+        nome: authenticatedUser.username || 'Usuário',
+        username: '@' + (authenticatedUser.username || 'usuario').toLowerCase(),
+        avatar: authenticatedUser.avatar || 'assets/user.png'
+      };
+      console.log('✅ currentUser atualizado:', this.currentUser);
+    } else {
+      console.warn('⚠️ Usuário não autenticado!');
+    }
+
     // Construir objeto com apenas campos que têm valor
     const postData: any = {
-      id_user: parseInt(this.currentUser.id, 10),  // Converter para number
       caption: content
     };
 
@@ -183,16 +204,24 @@ export class FeedService {
       if (produto.nome) postData.product_url = produto.nome;
     }
 
-    console.log('📤 Enviando post com dados:', postData);
+    console.log('📤 Payload a enviar:', postData);
+    console.log('🎯 Endpoint:', `${this.apiUrl}/posts/create`);
 
     this.http.post<any>(`${this.apiUrl}/posts/create`, postData).subscribe({
       next: (response) => {
+        console.log('✅ Sucesso ao criar post:', response);
         const newPost = this.mapPostFromBackend(response);
         this.postsSubject.next([newPost, ...this.postsSubject.value]);
-        console.log('✅ Post criado com sucesso:', response);
+        console.log('✅ Post adicionado ao feed');
+        console.groupEnd();
       },
       error: (error) => {
         console.error('❌ Erro ao criar post:', error);
+        console.error('Status:', error.status);
+        console.error('Mensagem:', error.message);
+        console.error('Resposta:', error.error);
+        
+        // Fallback: adicionar post localmente mesmo com erro
         const newPost: Post = {
           id: Date.now().toString(),
           author: this.currentUser,
@@ -211,12 +240,24 @@ export class FeedService {
           }
         };
         this.postsSubject.next([newPost, ...this.postsSubject.value]);
+        console.groupEnd();
       }
     });
   }
 
   // Criar post (async/await)
   async addPostAsync(content: string, produto?: { nome: string; categoria: string; nota: number; imagem: string }): Promise<void> {
+    // Atualizar o currentUser com os dados mais recentes do AuthService
+    const authenticatedUser = this.authService.getCurrentUser();
+    if (authenticatedUser) {
+      this.currentUser = {
+        id: authenticatedUser.id_user?.toString() || authenticatedUser.id?.toString() || '1',
+        nome: authenticatedUser.username || 'Usuário',
+        username: '@' + (authenticatedUser.username || 'usuario').toLowerCase(),
+        avatar: authenticatedUser.avatar || 'assets/user.png'
+      };
+    }
+
     // Construir objeto com apenas campos que têm valor
     const postData: any = {
       id_user: parseInt(this.currentUser.id, 10),  // Converter para number

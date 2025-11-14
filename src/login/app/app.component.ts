@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { AuthService } from './services/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
 
 
@@ -16,7 +16,6 @@ import { Router, RouterModule } from '@angular/router';
     HttpClientModule,
     RouterModule
   ],
-  providers: [AuthService],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
@@ -26,7 +25,7 @@ import { Router, RouterModule } from '@angular/router';
 export class AppComponent implements OnInit {
   loginForm!: FormGroup;
   submitted = false;
-  private apiUrl = 'http://10.51.47.41:3000/api/users/login'; // URL do backend
+  private apiUrl = 'http://localhost:3000/api/users/login'; // URL do backend
 
   constructor(
     private fb: FormBuilder, 
@@ -49,9 +48,12 @@ export class AppComponent implements OnInit {
       
       this.authService.login(email, password).subscribe({
         next: (response) => {
+          console.log('📥 Resposta do servidor:', response);
           console.log('✅ Login realizado com sucesso!');
           console.log('🔐 Token salvo:', this.authService.getToken()?.substring(0, 20) + '...');
-          alert('Login realizado com sucesso!');
+          const user = this.authService.getCurrentUser();
+          console.log('👤 Usuário logado:', user);
+          alert(`Login realizado com sucesso!\nBem-vindo, ${user?.username || 'Usuário'}!`);
           // Navegar para timeline após sucesso
           this.router.navigate(['/timeline']);
         },
