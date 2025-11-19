@@ -25,7 +25,7 @@ import { Router, RouterModule } from '@angular/router';
 export class AppComponent implements OnInit {
   loginForm!: FormGroup;
   submitted = false;
-  private apiUrl = 'http://localhost:3000/api/users/login'; // URL do backend
+  private apiUrl = 'http://10.51.47.41:3000/api/users/login'; // URL do backend
 
   constructor(
     private fb: FormBuilder, 

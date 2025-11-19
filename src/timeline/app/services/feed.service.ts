@@ -8,7 +8,7 @@ import { AuthService } from '../../../services/auth.service';
   providedIn: 'root'
 })
 export class FeedService {
-  private apiUrl = 'http://localhost:3000/api'; // Base URL do backend
+  private apiUrl = 'http://10.51.47.41:3000/api'; // Base URL do backend
   
   private currentUser: User = {
     id: '1',

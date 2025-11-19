@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class ApiService {
   // IP e porta do backend centralizado (usar localhost em desenvolvimento)
-  private readonly apiBaseUrl = 'http://localhost:3000/api';
+  private readonly apiBaseUrl = 'http://10.51.47.41:3000/api';
 
   constructor() { }
 
