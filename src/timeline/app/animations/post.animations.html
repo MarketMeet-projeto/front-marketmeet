@@ -1,0 +1,31 @@
+<div class="post-card">
+  <div class="post-header">
+    <img src="https://i.pravatar.cc/40" class="avatar">
+    <span class="username">Usuário</span>
+  </div>
+
+  <img src="https://picsum.photos/600/350" class="post-image">
+
+  <div class="post-actions">
+    <div class="like-wrapper">
+      <i class="heart-icon"></i>
+    </div>
+    <span class="like-counter">125</span>
+  </div>
+
+  <p class="post-text">
+    Este é um exemplo de post com animações em CSS.
+  </p>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const heart = document.querySelector(".heart-icon");
+    const counter = document.querySelector(".like-counter");
+
+    heart.addEventListener("click", () => {
+      counter.classList.add("clicked");
+      setTimeout(() => counter.classList.remove("clicked"), 250);
+    });
+  });
+</script>
+
+</div>
