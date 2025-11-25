@@ -10,11 +10,19 @@
 <body>
     <aside class="sidebar">
         <h3>Pessoas para Seguir</h3>
-        <div class="sugestao" *ngFor="let s of sugestoes">
-            <img [src]="s.avatar" alt="Avatar" class="avatar">
+        <div class="sugestao" *ngIf="sugestoes && sugestoes.length > 0">
+            <img src="techinsider_perfil.png" alt="Avatar" class="avatar">
             <div class="info">
-                <strong>{{ s.nome }}</strong>
-                <span>{{ s.seguidores }} seguidores</span>
+                <strong>{{ sugestoes[0].nome }}</strong>
+                <span>{{ sugestoes[0].seguidores }} seguidores</span>
+            </div>
+            <button>Seguir</button>
+        </div>
+        <div class="sugestao" *ngIf="sugestoes && sugestoes.length > 0">
+            <img src="fashionMon.png" alt="Avatar" class="avatar">
+            <div class="info">
+                <strong>{{ sugestoes[0].nome }}</strong>
+                <span>{{ sugestoes[0].seguidores }} seguidores</span>
             </div>
             <button>Seguir</button>
         </div>
