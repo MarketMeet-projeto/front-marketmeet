@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { likeAnimation, publishAnimation, heartBeatAnimation } from '../animations/post.animations';
 import { FeedService } from '../services/feed.service';
 import { AuthService } from '../../../services/auth.service';
@@ -50,9 +52,10 @@ interface Post {
   imports: [CommonModule, FormsModule],
   templateUrl: './feed.component.html',
   styleUrls: ['./feed.component.css'],
-  animations: [likeAnimation, publishAnimation, heartBeatAnimation]
+  animations: [likeAnimation, publishAnimation, heartBeatAnimation],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FeedComponent implements OnInit {
+export class FeedComponent implements OnInit, OnDestroy {
   posts: Post[] = [];
   modalAberto = false;
   novoPost = {
@@ -76,23 +79,29 @@ export class FeedComponent implements OnInit {
     avatar: 'assets/user.png'
   };
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private feedService: FeedService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {
     // Inscrever-se aos posts do serviço que conecta ao backend
-    this.feedService.posts$.subscribe((posts: any) => {
-      // Mapear para o tipo local Post com campos extras para comentários
-      this.posts = posts.map((post: any) => ({
-        ...post,
-        interacoes: {
-          ...post.interacoes,
-          comments: [],
-          animationState: 'inactive' as const
-        },
-        showComments: false
-      }));
-    });
+    this.feedService.posts$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((posts: any) => {
+        // Mapear para o tipo local Post com campos extras para comentários
+        this.posts = posts.map((post: any) => ({
+          ...post,
+          interacoes: {
+            ...post.interacoes,
+            comments: [],
+            animationState: 'inactive' as const
+          },
+          showComments: false
+        }));
+        this.cdr.markForCheck();
+      });
   }
 
   ngOnInit(): void {
@@ -107,6 +116,11 @@ export class FeedComponent implements OnInit {
       };
       console.log('👤 FeedComponent - Usuário carregado:', this.currentUser);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   abrirModal(): void {
@@ -304,5 +318,14 @@ export class FeedComponent implements OnInit {
   novoComentario: string = '';
   limparComentario(): void {
     this.novoComentario = '';
+  }
+
+  // TrackBy para otimizar *ngFor
+  trackByPostId(index: number, post: Post): string {
+    return post.id;
+  }
+
+  trackByCommentId(index: number, comment: Comment): string {
+    return comment.id;
   }
 }

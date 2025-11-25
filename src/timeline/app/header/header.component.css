@@ -54,3 +54,81 @@
     }
   }
 }
+
+/* Media Queries para Mobile */
+@media (max-width: 768px) {
+  .header {
+    padding: 8px 12px;
+    flex-wrap: wrap;
+
+    .logo {
+      gap: 4px;
+
+      img {
+        width: 40px;
+      }
+
+      span {
+        font-size: 16px;
+      }
+    }
+
+    input {
+      flex: 1;
+      margin: 0 8px;
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+
+    .actions {
+      gap: 12px;
+
+      .avatar {
+        width: 28px;
+        height: 28px;
+      }
+
+      .filter {
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 6px 8px;
+    gap: 8px;
+
+    .logo {
+      img {
+        width: 32px;
+      }
+
+      span {
+        font-size: 14px;
+      }
+    }
+
+    input {
+      margin: 0 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    .actions {
+      gap: 8px;
+
+      .avatar {
+        width: 24px;
+        height: 24px;
+      }
+
+      .filter {
+        padding: 2px 6px;
+        font-size: 11px;
+      }
+    }
+  }
+}

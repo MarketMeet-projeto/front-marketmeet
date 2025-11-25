@@ -1,6 +1,6 @@
 <div class="feed-container">
   <div class="novo-post-box">
-    <img [src]="currentUser.avatar" alt="User" class="avatar">
+    <img [src]="currentUser.avatar" alt="User" class="avatar" loading="lazy">
     <button 
       type="button" 
       class="nova-publicacao-btn"
@@ -87,9 +87,9 @@
     </div>
   </div>
 
-  <div *ngFor="let post of posts" class="post" @publishAnimation>
+  <div *ngFor="let post of posts; trackBy: trackByPostId" class="post" @publishAnimation>
     <div class="post-header">
-      <img [src]="post.author.avatar" alt="Avatar" class="avatar" />
+      <img [src]="post.author.avatar" alt="Avatar" class="avatar" loading="lazy" />
       <div class="user-info">
         <strong>{{ post.author.nome }}</strong>
         <span>{{ post.author.username }} • {{ formatarTempo(post.createdAt) }}</span>
@@ -100,7 +100,7 @@
     </div>
 
     <div class="post-body" *ngIf="post.produto">
-      <img *ngIf="post.produto.imagem" [src]="post.produto.imagem" [alt]="post.produto.nome" class="produto-img">
+      <img *ngIf="post.produto.imagem" [src]="post.produto.imagem" [alt]="post.produto.nome" class="produto-img" loading="lazy">
       <div class="produto-info">
         <strong>{{ post.produto.nome }}</strong>
         <span>{{ post.produto.categoria }}</span>
@@ -109,7 +109,7 @@
     </div>
 
     <p class="descricao">{{ post.content.texto }}</p>
-    <img *ngIf="post.content.midia" [src]="post.content.midia" alt="Mídia do post" class="post-media">
+    <img *ngIf="post.content.midia" [src]="post.content.midia" alt="Mídia do post" class="post-media" loading="lazy">
 
     <div class="post-footer">
       <div class="post-actions">

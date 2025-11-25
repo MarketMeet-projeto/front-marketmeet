@@ -43,4 +43,43 @@ body {
   padding: 20px 40px;
 }
 
+/* Media Queries para Mobile */
+@media (max-width: 768px) {
+  .layout {
+    display: grid;
+    grid-template-areas:
+      "header"
+      "feed";
+    grid-template-columns: 1fr;
+    grid-template-rows: 64px auto;
+    min-height: 100vh;
+    background: #f9fafb;
+  }
+
+  .sidebar-left {
+    display: none;
+  }
+
+  .header {
+    grid-area: header;
+    border-bottom: 1px solid #e2e8f0;
+    background: #fff;
+  }
+
+  .feed {
+    grid-area: feed;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .layout {
+    grid-template-rows: 56px auto;
+  }
+
+  .feed {
+    padding: 0.75rem;
+  }
+}
+
 

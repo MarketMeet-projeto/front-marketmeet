@@ -20,6 +20,11 @@ export class FeedService {
   private postsSubject = new BehaviorSubject<Post[]>([]);
   posts$ = this.postsSubject.asObservable();
 
+  // Cache e controle de carregamento
+  private isLoadingPosts = false;
+  private lastLoadTime = 0;
+  private readonly CACHE_DURATION = 60000; // 60 segundos de cache
+
   constructor(
     private http: HttpClient,
     private authService: AuthService
@@ -40,8 +45,17 @@ export class FeedService {
     this.loadPostsFromBackend();
   }
 
-  // Carregar posts do backend
+  // Carregar posts do backend com cache
   private loadPostsFromBackend(): void {
+    const now = Date.now();
+    
+    // Evitar múltiplas requisições simultâneas e respeitar cache
+    if (this.isLoadingPosts || (now - this.lastLoadTime < this.CACHE_DURATION && this.postsSubject.value.length > 0)) {
+      console.log('⚡ Usando cache de posts');
+      return;
+    }
+
+    this.isLoadingPosts = true;
     const timelineUrl = `${this.apiUrl}/posts/timeline`;
     console.log(`Carregando posts de: ${timelineUrl}`);
 
@@ -56,11 +70,14 @@ export class FeedService {
 
         const mappedPosts = posts.map((post: any) => this.mapPostFromBackend(post));
         this.postsSubject.next(mappedPosts);
+        this.lastLoadTime = now;
+        this.isLoadingPosts = false;
         console.log('✅ Posts carregados com sucesso:', mappedPosts);
       },
       error: (error) => {
         console.error('❌ Erro ao carregar posts do backend:', error);
         this.loadInitialPosts();
+        this.isLoadingPosts = false;
       }
     });
   }
