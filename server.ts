@@ -23,7 +23,7 @@ export function app(): express.Express {
   server.get('*.*', express.static(browserDistFolder, {
     maxAge: '1y'
   }));
-
+  
   // All regular routes use the Angular engine
   server.get('*', (req, res, next) => {
     const { protocol, originalUrl, baseUrl, headers } = req;
