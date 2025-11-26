@@ -94,9 +94,24 @@
         <strong>{{ post.author.nome }}</strong>
         <span>{{ post.author.username }} • {{ formatarTempo(post.createdAt) }}</span>
       </div>
-      <button class="seguir" *ngIf="post.author.id !== currentUser.id">
-        Seguir
-      </button>
+      <div class="header-actions">
+        <button 
+          type="button"
+          class="seguir" 
+          *ngIf="post.author.id !== currentUser.id"
+          (click)="onSeguirClick(post.author.id)"
+          [class.seguindo]="isFollowing(post.author.id)">
+          {{ isFollowing(post.author.id) ? '✓ Seguindo' : 'Seguir' }}
+        </button>
+        <button 
+          type="button"
+          class="deletar-btn" 
+          *ngIf="post.author.id === currentUser.id"
+          (click)="deletarPost(post.id)"
+          title="Deletar post">
+          🗑️ Deletar
+        </button>
+      </div>
     </div>
 
     <div class="post-body" *ngIf="post.produto">
@@ -116,12 +131,12 @@
         <button 
           type="button"
           class="action-button like-button" 
-          [class.liked]="post.interacoes.curtidoPor.includes(currentUser.id)"
+          [class.liked]="isPostLikedByCurrentUser(post)"
           (click)="curtirPost(post.id)">
           <span class="heart-icon" 
                 [@heartBeat]="post.interacoes.animationState || 'inactive'"
-                [@likeAnimation]="post.interacoes.curtidoPor.includes(currentUser.id)">
-            {{ post.interacoes.curtidoPor.includes(currentUser.id) ? '❤️' : '🤍' }}
+                [@likeAnimation]="isPostLikedByCurrentUser(post)">
+            {{ isPostLikedByCurrentUser(post) ? '❤️' : '🤍' }}
           </span>
           <span class="like-count" 
                 [@likeAnimation]="post.interacoes.curtidas">

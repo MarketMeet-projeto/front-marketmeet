@@ -107,30 +107,61 @@ export class FeedService {
 
   // Mapear dados do backend para o modelo local
   private mapPostFromBackend(backendPost: any): Post {
+    console.log('[FeedService] mapPostFromBackend - Input:', backendPost);
+    
+    // Aceitar respostas que podem vir aninhadas (ex: { post: { ... } })
+    if (backendPost && backendPost.post) {
+      console.log('[FeedService] Extraindo backendPost.post da resposta aninhada');
+      backendPost = backendPost.post;
+    }
+
+    const safeToString = (v: any) => v === null || v === undefined ? '' : String(v);
+
+    // Normalizar a lista de usuários que curtiram para strings
+    // O backend retorna likes como array de { id_user: ... } ou apenas [1, 2, 3]
+    let likedByCandidates = backendPost.likes || backendPost.liked_by || backendPost.liked_by_ids || backendPost.liked_users || backendPost.liked_user_ids || [];
+    
+    console.log('[FeedService] likedByCandidates bruto:', likedByCandidates);
+    console.log('[FeedService] Tipo de likedByCandidates:', typeof likedByCandidates);
+    console.log('[FeedService] É array?', Array.isArray(likedByCandidates));
+    
+    // Se é um array de objetos com id_user, extrair só os IDs
+    if (Array.isArray(likedByCandidates) && likedByCandidates.length > 0 && typeof likedByCandidates[0] === 'object') {
+      console.log('[FeedService] Convertendo array de objetos para IDs');
+      likedByCandidates = likedByCandidates.map((like: any) => like.id_user || like.id || like);
+    }
+    
+    const curtidoPor = Array.isArray(likedByCandidates)
+      ? likedByCandidates.map((id: any) => safeToString(id))
+      : [];
+
+    console.log('[FeedService] Likes mapeados para curtidoPor:', curtidoPor);
+    console.log('[FeedService] likes_count do backend:', backendPost.likes_count ?? 0);
+
     return {
-      id: backendPost.id_post?.toString() || backendPost.id || '',
+      id: safeToString(backendPost.id_post ?? backendPost.id ?? ''),
       author: {
-        id: backendPost.id_user?.toString() || '0',
+        id: safeToString(backendPost.id_user ?? backendPost.user_id ?? '0'),
         nome: backendPost.user_name || backendPost.username || 'Usuário',
         username: backendPost.user_username || '@user',
         avatar: backendPost.user_avatar || 'assets/user.png'
       },
-      createdAt: new Date(backendPost.created_at),
+      createdAt: new Date(backendPost.created_at || backendPost.createdAt || Date.now()),
       content: {
-        texto: backendPost.caption || '',
-        midia: backendPost.product_photo
+        texto: backendPost.caption || backendPost.text || '',
+        midia: backendPost.product_photo || backendPost.media
       },
       produto: backendPost.category ? {
-        id: backendPost.id_post?.toString() || '',
-        nome: backendPost.product_url || '',
+        id: safeToString(backendPost.id_post ?? backendPost.id ?? ''),
+        nome: backendPost.product_url || backendPost.product_name || '',
         categoria: backendPost.category || '',
-        nota: backendPost.rating || 5,
+        nota: Number(backendPost.rating ?? 5),
         imagem: backendPost.product_photo || ''
       } : undefined,
       interacoes: {
-        curtidas: backendPost.likes_count || 0,
-        curtidoPor: [],
-        compartilhamentos: backendPost.shares_count || 0
+        curtidas: Number(backendPost.likes_count ?? backendPost.likes?.length ?? 0),
+        curtidoPor: curtidoPor,
+        compartilhamentos: Number(backendPost.shares_count ?? backendPost.shares ?? 0)
       }
     };
   }
@@ -321,15 +352,39 @@ export class FeedService {
   }
 
   toggleLike(postId: string): void {
+    console.log('[FeedService] toggleLike chamado para postId:', postId);
+    console.log('[FeedService] IDs atuais antes do request:', this.postsSubject.value.map(p => p.id));
+
+    // Sempre obter o usuário autenticado no momento da ação (não usar cache)
+    const authenticatedUser = this.authService.getCurrentUser();
+    const currentUserId = authenticatedUser?.id_user?.toString() || authenticatedUser?.id?.toString() || this.currentUser.id;
+    console.log('[FeedService] currentUserId para operação de like:', currentUserId);
+
     this.http.post<any>(`${this.apiUrl}/posts/${postId}/like`, {}).subscribe({
       next: (response) => {
+        console.log('[FeedService] Resposta completa do backend:', response);
+        
         const posts = this.postsSubject.value;
         const postIndex = posts.findIndex(p => p.id === postId);
+        console.log('[FeedService] postIndex encontrado:', postIndex);
         
         if (postIndex !== -1) {
-          const updatedPost = this.mapPostFromBackend(response);
+          // Extrair o post da resposta (pode vir em response.post)
+          const postData = response?.post || response;
+          console.log('[FeedService] postData extraído para mapear:', postData);
+          console.log('[FeedService] postData.liked_by:', postData?.liked_by);
+          console.log('[FeedService] postData.likes:', postData?.likes);
+          console.log('[FeedService] postData.likes_count:', postData?.likes_count);
+          
+          const updatedPost = this.mapPostFromBackend(postData);
+          console.log('[FeedService] Post mapeado após like:', updatedPost);
+          console.log('[FeedService] curtidoPor após mapeamento:', updatedPost.interacoes.curtidoPor);
+          console.log('[FeedService] Tipo dos IDs em curtidoPor:', typeof updatedPost.interacoes.curtidoPor[0]);
+          
           posts[postIndex] = updatedPost;
           this.postsSubject.next([...posts]);
+        } else {
+          console.warn('[FeedService] toggleLike: postId não encontrado nos posts locais:', postId);
         }
       },
       error: (error) => {
@@ -340,7 +395,7 @@ export class FeedService {
         if (postIndex === -1) return;
 
         const post = posts[postIndex];
-        const userLiked = post.interacoes.curtidoPor.includes(this.currentUser.id);
+        const userLiked = post.interacoes.curtidoPor.includes(currentUserId);
 
         const updatedPost = {
           ...post,
@@ -348,8 +403,8 @@ export class FeedService {
             ...post.interacoes,
             curtidas: userLiked ? post.interacoes.curtidas - 1 : post.interacoes.curtidas + 1,
             curtidoPor: userLiked 
-              ? post.interacoes.curtidoPor.filter((id: string) => id !== this.currentUser.id)
-              : [...post.interacoes.curtidoPor, this.currentUser.id]
+              ? post.interacoes.curtidoPor.filter((id: string) => id !== currentUserId)
+              : [...post.interacoes.curtidoPor, currentUserId]
           }
         };
 
@@ -361,13 +416,19 @@ export class FeedService {
 
   // Curtir post (async/await)
   async toggleLikeAsync(postId: string): Promise<void> {
+    // Sempre obter o usuário autenticado no momento da ação (não usar cache)
+    const authenticatedUser = this.authService.getCurrentUser();
+    const currentUserId = authenticatedUser?.id_user?.toString() || authenticatedUser?.id?.toString() || this.currentUser.id;
+
     try {
       const response = await this.http.post<any>(`${this.apiUrl}/posts/${postId}/like`, {}).toPromise();
       const posts = this.postsSubject.value;
       const postIndex = posts.findIndex(p => p.id === postId);
       
       if (postIndex !== -1) {
-        const updatedPost = this.mapPostFromBackend(response!);
+        // Extrair o post da resposta (pode vir em response.post)
+        const postData = response?.post || response;
+        const updatedPost = this.mapPostFromBackend(postData);
         posts[postIndex] = updatedPost;
         this.postsSubject.next([...posts]);
       }
@@ -379,7 +440,7 @@ export class FeedService {
       if (postIndex === -1) return;
 
       const post = posts[postIndex];
-      const userLiked = post.interacoes.curtidoPor.includes(this.currentUser.id);
+      const userLiked = post.interacoes.curtidoPor.includes(currentUserId);
 
       const updatedPost = {
         ...post,
@@ -387,8 +448,8 @@ export class FeedService {
           ...post.interacoes,
           curtidas: userLiked ? post.interacoes.curtidas - 1 : post.interacoes.curtidas + 1,
           curtidoPor: userLiked 
-            ? post.interacoes.curtidoPor.filter((id: string) => id !== this.currentUser.id)
-            : [...post.interacoes.curtidoPor, this.currentUser.id]
+            ? post.interacoes.curtidoPor.filter((id: string) => id !== currentUserId)
+            : [...post.interacoes.curtidoPor, currentUserId]
         }
       };
 
@@ -398,13 +459,19 @@ export class FeedService {
   }
 
   sharePost(postId: string): void {
+    // Sempre obter o usuário autenticado no momento da ação (não usar cache)
+    const authenticatedUser = this.authService.getCurrentUser();
+    const currentUserId = authenticatedUser?.id_user?.toString() || authenticatedUser?.id?.toString() || this.currentUser.id;
+
     this.http.post<any>(`${this.apiUrl}/posts/${postId}/share`, {}).subscribe({
       next: (response) => {
         const posts = this.postsSubject.value;
         const postIndex = posts.findIndex(p => p.id === postId);
         
         if (postIndex !== -1) {
-          const updatedPost = this.mapPostFromBackend(response);
+          // Extrair o post da resposta (pode vir em response.post)
+          const postData = response?.post || response;
+          const updatedPost = this.mapPostFromBackend(postData);
           posts[postIndex] = updatedPost;
           this.postsSubject.next([...posts]);
         }
@@ -439,7 +506,9 @@ export class FeedService {
       const postIndex = posts.findIndex(p => p.id === postId);
       
       if (postIndex !== -1) {
-        const updatedPost = this.mapPostFromBackend(response!);
+        // Extrair o post da resposta (pode vir em response.post)
+        const postData = response?.post || response;
+        const updatedPost = this.mapPostFromBackend(postData);
         posts[postIndex] = updatedPost;
         this.postsSubject.next([...posts]);
       }
@@ -474,6 +543,33 @@ export class FeedService {
     return this.currentUser;
   }
 
+  /**
+   * Deletar um post
+   */
+  deletePost(postId: string): Observable<any> {
+    console.log('[FeedService] deletePost chamado para postId:', postId);
+    
+    return new Observable(observer => {
+      this.http.delete<any>(`${this.apiUrl}/posts/${postId}`).subscribe({
+        next: (response) => {
+          console.log('[FeedService] Post deletado com sucesso:', response);
+          
+          // Remover o post do estado local
+          const posts = this.postsSubject.value.filter(p => p.id !== postId);
+          this.postsSubject.next(posts);
+          console.log('[FeedService] Posts após deleção:', posts.length);
+          
+          observer.next(response);
+          observer.complete();
+        },
+        error: (error) => {
+          console.error('[FeedService] Erro ao deletar post:', error);
+          observer.error(error);
+        }
+      });
+    });
+  }
+
   // Método auxiliar para testar rotas do backend
   testBackendRoute(customUrl: string): void {
     console.log(`Testando rota customizada: ${customUrl}`);
@@ -491,5 +587,84 @@ export class FeedService {
         console.error(`❌ Erro ao carregar de ${customUrl}:`, error);
       }
     });
+  }
+
+  /**
+   * Método de diagnóstico para verificar IDs duplicados
+   */
+  public diagnosticoDuplicatas(): void {
+    const posts = this.postsSubject.value;
+    console.group('🔍 DIAGNÓSTICO DE DUPLICATAS');
+    
+    console.log('📊 Total de posts:', posts.length);
+    
+    // Verificar IDs duplicados nos posts
+    const postIds = posts.map(p => p.id);
+    const postIdsDuplicadas = postIds.filter((id, index) => postIds.indexOf(id) !== index);
+    
+    if (postIdsDuplicadas.length > 0) {
+      console.warn('⚠️ IDs de posts DUPLICADOS encontrados:', [...new Set(postIdsDuplicadas)]);
+    } else {
+      console.log('✅ Nenhum ID de post duplicado');
+    }
+    
+    // Listar todos os posts com seus IDs
+    console.log('📋 Todos os posts:');
+    posts.forEach((post, index) => {
+      console.log(`  [${index}] ID: ${post.id} | Autor: ${post.author.nome} | Curtidas: ${post.interacoes.curtidas} | CurtidoPor: [${post.interacoes.curtidoPor.join(', ')}]`);
+    });
+    
+    // Verificar curtidoPor para cada post
+    console.log('❤️ Análise de curtidas por post:');
+    posts.forEach((post) => {
+      const duplicatasCurtidas = post.interacoes.curtidoPor.filter((id, index) => post.interacoes.curtidoPor.indexOf(id) !== index);
+      if (duplicatasCurtidas.length > 0) {
+        console.warn(`  Post ${post.id}: Usuários DUPLICADOS em curtidoPor:`, [...new Set(duplicatasCurtidas)]);
+      } else {
+        console.log(`  Post ${post.id}: ✅ Sem duplicatas em curtidoPor`);
+      }
+    });
+    
+    console.groupEnd();
+  }
+
+  /**
+   * Método de teste para simular uma curtida
+   */
+  public testarCurtida(): void {
+    console.group('🧪 TESTE DE CURTIDA');
+    
+    const posts = this.postsSubject.value;
+    if (posts.length === 0) {
+      console.warn('Nenhum post disponível para teste');
+      console.groupEnd();
+      return;
+    }
+
+    const postTeste = posts[0];
+    const currentUser = this.authService.getCurrentUser();
+    const currentUserId = String(currentUser?.id_user || currentUser?.id || '1');
+
+    console.log('📝 Simulando curtida:');
+    console.log('  Post ID:', postTeste.id);
+    console.log('  Post curtidas antes:', postTeste.interacoes.curtidas);
+    console.log('  Post curtidoPor antes:', postTeste.interacoes.curtidoPor);
+    console.log('  currentUserId:', currentUserId);
+    console.log('  Tipo do currentUserId:', typeof currentUserId);
+
+    // Simular adição de like
+    const novosCurtidoPor = [...postTeste.interacoes.curtidoPor, currentUserId];
+    console.log('  curtidoPor após adição:', novosCurtidoPor);
+    console.log('  Tipos dos IDs:', novosCurtidoPor.map(id => `${id}(${typeof id})`));
+
+    // Verificar se currentUserId está na lista
+    const estaNaLista = novosCurtidoPor.includes(currentUserId);
+    console.log('  Está na lista:', estaNaLista);
+
+    // Verificar com normalização de string
+    const estaComNormalizacao = novosCurtidoPor.some(id => String(id) === currentUserId);
+    console.log('  Está na lista (normalizado):', estaComNormalizacao);
+
+    console.groupEnd();
   }
 }

@@ -6,6 +6,7 @@ import { takeUntil } from 'rxjs/operators';
 import { likeAnimation, publishAnimation, heartBeatAnimation } from '../animations/post.animations';
 import { FeedService } from '../services/feed.service';
 import { AuthService } from '../../../services/auth.service';
+import { FollowService } from '../../../services/follow.service';
 
 interface Comment {
   id: string;
@@ -84,6 +85,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   constructor(
     private feedService: FeedService,
     private authService: AuthService,
+    private followService: FollowService,
     private cdr: ChangeDetectorRef
   ) {
     // Inscrever-se aos posts do serviço que conecta ao backend
@@ -101,6 +103,9 @@ export class FeedComponent implements OnInit, OnDestroy {
           showComments: false
         }));
         this.cdr.markForCheck();
+        
+        // Diagnóstico: verificar IDs duplicados
+        setTimeout(() => this.feedService.diagnosticoDuplicatas(), 500);
       });
   }
 
@@ -186,6 +191,10 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   curtirPost(postId: string): void {
+    // Log para diagnóstico: registrar qual post foi clicado e os IDs atuais
+    console.log('[FeedComponent] curtirPost clicado:', postId);
+    console.log('[FeedComponent] IDs atuais do feed:', this.posts.map(p => p.id));
+
     // Chamar o serviço para curtir
     this.feedService.toggleLike(postId);
 
@@ -223,6 +232,62 @@ export class FeedComponent implements OnInit, OnDestroy {
   compartilharPost(postId: string): void {
     // Chamar o serviço para compartilhar
     this.feedService.sharePost(postId);
+  }
+
+  deletarPost(postId: string): void {
+    // Confirmar antes de deletar
+    if (!confirm('Tem certeza que deseja deletar este post?')) {
+      return;
+    }
+
+    console.log('[FeedComponent] Deletando post:', postId);
+    this.feedService.deletePost(postId).subscribe({
+      next: () => {
+        console.log('[FeedComponent] Post deletado com sucesso');
+        // Remover o post da lista local
+        this.posts = this.posts.filter(post => post.id !== postId);
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('[FeedComponent] Erro ao deletar post:', error);
+        alert('Erro ao deletar post. Tente novamente.');
+      }
+    });
+  }
+
+  onSeguirClick(userId: string): void {
+    const isCurrentlyFollowing = this.followService.isFollowing(userId);
+    console.log('[FeedComponent] Toggle seguir usuário:', userId, 'Currently following:', isCurrentlyFollowing);
+
+    if (isCurrentlyFollowing) {
+      // Deixar de seguir
+      this.followService.unfollowUser(userId).subscribe({
+        next: () => {
+          console.log('[FeedComponent] Deixou de seguir com sucesso');
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('[FeedComponent] Erro ao deixar de seguir:', error);
+          alert('Erro ao deixar de seguir. Tente novamente.');
+        }
+      });
+    } else {
+      // Seguir
+      this.followService.followUser(userId).subscribe({
+        next: () => {
+          console.log('[FeedComponent] Seguindo com sucesso');
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('[FeedComponent] Erro ao seguir:', error);
+          alert('Erro ao seguir. Tente novamente.');
+        }
+      });
+    }
+  }
+
+  isFollowing(userId: string): boolean {
+    return this.followService.isFollowing(userId);
   }
   
   
@@ -318,6 +383,17 @@ export class FeedComponent implements OnInit, OnDestroy {
   novoComentario: string = '';
   limparComentario(): void {
     this.novoComentario = '';
+  }
+
+  /**
+   * Verifica se o usuário atual curtiu o post
+   * Normaliza IDs para strings para evitar problemas de comparação
+   */
+  isPostLikedByCurrentUser(post: Post): boolean {
+    const currentUserId = String(this.currentUser.id);
+    const likedByUser = post.interacoes.curtidoPor.some(id => String(id) === currentUserId);
+    console.log(`[FeedComponent] Verificando like - currentUserId: ${currentUserId}, likedByUser: ${likedByUser}, curtidoPor: [${post.interacoes.curtidoPor.join(', ')}]`);
+    return likedByUser;
   }
 
   // TrackBy para otimizar *ngFor

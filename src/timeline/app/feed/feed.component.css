@@ -243,6 +243,60 @@
     }
   }
 
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .seguir,
+  .deletar-btn {
+    padding: 8px 14px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    background: white;
+    color: #333;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .seguir {
+    background: #fff;
+    border: 1px solid #1976d2;
+    color: #1976d2;
+  }
+
+  .seguir:hover {
+    background: #1976d2;
+    color: white;
+  }
+
+  .seguir.seguindo {
+    background: #1976d2;
+    color: white;
+    border-color: #1976d2;
+  }
+
+  .seguir.seguindo:hover {
+    background: #fff;
+    color: #1976d2;
+    border-color: #1976d2;
+  }
+
+  .deletar-btn {
+    background: #fff;
+    border: 1px solid #d32f2f;
+    color: #d32f2f;
+  }
+
+  .deletar-btn:hover {
+    background: #d32f2f;
+    color: white;
+  }
+
   .produto-img {
     width: 100px;
     border-radius: 8px;
