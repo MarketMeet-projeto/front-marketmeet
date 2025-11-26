@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -7,4 +8,10 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
   styleUrls: ['./header.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HeaderComponent {}
+export class HeaderComponent {
+  constructor(private router: Router) {}
+
+  navegarParaConfig(): void {
+    this.router.navigate(['/perfil/config']);
+  }
+}

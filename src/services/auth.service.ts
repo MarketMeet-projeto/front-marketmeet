@@ -127,6 +127,59 @@ export class AuthService {
   }
 
   /**
+   * Atualizar perfil do usuário no backend
+   */
+  updateUserProfile(profileData: any): Observable<any> {
+    const token = this.getToken();
+    const user = this.getCurrentUser();
+    
+    // Extrair o ID do usuário
+    const userId = user?.id_user || user?.id || user?.user_id;
+    
+    console.log('📤 [AuthService] Enviando atualização de perfil para:', `${this.apiUrl}/update`);
+    console.log('🆔 User ID:', userId);
+    console.log('📄 Dados do formulário:', profileData);
+    
+    // Preparar payload com os campos que o backend aceita
+    const dataWithUserId = {
+      id_user: userId,
+      username: profileData.username,
+      email: profileData.email,
+      birth_date: profileData.birth_date || null
+    };
+
+    console.log('📤 Payload final sendo enviado:', JSON.stringify(dataWithUserId, null, 2));
+
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+
+    return this.http.put<any>(`${this.apiUrl}/update`, dataWithUserId, { headers }).pipe(
+      tap((response: any) => {
+        console.log('✅ [AuthService] Resposta do servidor recebida:', response);
+        
+        // Atualizar o usuário no BehaviorSubject com todos os dados
+        if (response?.user) {
+          const usuarioAtualizado = {
+            ...user,
+            ...response.user,
+            username: profileData.username,
+            name: profileData.fullName,
+            bio: profileData.bio,
+            email: profileData.email,
+            phone: profileData.phone
+          };
+          
+          this.currentUserSubject.next(usuarioAtualizado);
+          localStorage.setItem('current_user', JSON.stringify(usuarioAtualizado));
+          console.log('✅ [AuthService] Usuário atualizado localmente');
+        }
+      })
+    );
+  }
+
+  /**
    * DEBUG: Imprimir estado do localStorage
    */
   private printStorageState(): void {

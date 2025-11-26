@@ -44,6 +44,17 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .avatar:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 8px rgba(60, 135, 255, 0.3);
+    }
+
+    .avatar:active {
+      transform: scale(0.95);
     }
 
     .filter {

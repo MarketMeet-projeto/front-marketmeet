@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { likeAnimation, publishAnimation, heartBeatAnimation } from '../animations/post.animations';
@@ -84,7 +85,8 @@ export class FeedComponent implements OnInit, OnDestroy {
   constructor(
     private feedService: FeedService,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {
     // Inscrever-se aos posts do serviço que conecta ao backend
     this.feedService.posts$
@@ -327,5 +329,9 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   trackByCommentId(index: number, comment: Comment): string {
     return comment.id;
+  }
+
+  navigarParaPerfil(usuarioId: string): void {
+    this.router.navigate(['/perfil'], { queryParams: { id: usuarioId } });
   }
 }
