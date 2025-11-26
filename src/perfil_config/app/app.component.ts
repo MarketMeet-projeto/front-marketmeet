@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -88,7 +89,7 @@ export class AppComponent implements OnInit {
   validatePhone(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const value = control.value;
-      if (!value) return { required: true };
+      if (!value) return null; // Telefone não é obrigatório
       
       // Remove tudo que não é dígito
       const digits = value.replace(/\D/g, '');
@@ -108,18 +109,45 @@ export class AppComponent implements OnInit {
     };
   }
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService) {
     this.profileForm = this.fb.group({
-      fullName: ['Ana Sha', [Validators.required, this.validateFullName()]],
-      username: ['anasha', [Validators.required, this.validateUsername()]],
-      bio: ['Apaixonada por tecnologia e sempre em busca dos melhores produtos.', [this.validateBio()]],
-      email: ['ana@gmail.com', [Validators.required, Validators.email]],
-      phone: ['+55 11 99999-9999', [Validators.required, this.validatePhone()]]
+      fullName: ['', [Validators.required, this.validateFullName()]],
+      username: ['', [Validators.required, this.validateUsername()]],
+      bio: ['', [this.validateBio()]],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [this.validatePhone()]]
     });
   }
 
   ngOnInit() {
-    // Inicialização adicional se necessário
+    // Carregar dados do usuário logado
+    this.carregarDadosUsuario();
+  }
+
+  // Método para carregar dados do usuário autenticado
+  private carregarDadosUsuario(): void {
+    const usuarioAtual = this.authService.getCurrentUser();
+    console.log('👤 Usuário atual carregado:', usuarioAtual);
+    
+    if (usuarioAtual) {
+      // Preencher formulário com os dados do usuário
+      this.profileForm.patchValue({
+        fullName: usuarioAtual.name || usuarioAtual.username || '',
+        username: usuarioAtual.username || '',
+        bio: usuarioAtual.bio || '',
+        email: usuarioAtual.email || '',
+        phone: usuarioAtual.phone || ''
+      });
+
+      // Atualizar a imagem do perfil se disponível
+      if (usuarioAtual.avatar) {
+        this.profileImage = usuarioAtual.avatar;
+      }
+
+      console.log('✅ Formulário preenchido com dados do usuário');
+    } else {
+      console.warn('⚠️ Nenhum usuário autenticado encontrado');
+    }
   }
 
   // Getters para acessar os campos do formulário
@@ -204,9 +232,6 @@ export class AppComponent implements OnInit {
   get phoneErrors(): string {
     const control = this.phoneControl;
     if (control?.errors && control.touched) {
-      if (control.errors['required']) {
-        return 'O telefone é obrigatório';
-      }
       if (control.errors['minlength']) {
         return 'O número deve ter pelo menos 10 dígitos (DDD + número)';
       }
@@ -223,15 +248,57 @@ export class AppComponent implements OnInit {
 
   onSubmit() {
     if (this.profileForm.valid) {
-      console.log('Formulário enviado:', this.profileForm.value);
-      // Após salvar com sucesso, redireciona para a página inicial
-      this.router.navigate(['/inicio']);
+      const dadosAtualizados = this.profileForm.value;
+      console.log('📤 Enviando dados para o backend:', dadosAtualizados);
+      
+      // Obter dados do usuário atual
+      const usuarioAtual = this.authService.getCurrentUser();
+      if (usuarioAtual) {
+        // Preparar dados para enviar ao backend
+        const payload = {
+          fullName: dadosAtualizados.fullName,
+          username: dadosAtualizados.username,
+          bio: dadosAtualizados.bio,
+          email: dadosAtualizados.email,
+          phone: dadosAtualizados.phone
+        };
+
+        // Enviar para o backend
+        this.authService.updateUserProfile(payload).subscribe({
+          next: (response) => {
+            console.log('✅ Perfil atualizado com sucesso:', response);
+            
+            // Atualizar dados do usuário no localStorage
+            const usuarioAtualizado = {
+              ...usuarioAtual,
+              name: dadosAtualizados.fullName,
+              username: dadosAtualizados.username,
+              bio: dadosAtualizados.bio,
+              email: dadosAtualizados.email,
+              phone: dadosAtualizados.phone
+            };
+            
+            localStorage.setItem('current_user', JSON.stringify(usuarioAtualizado));
+            console.log('✅ Dados do usuário atualizados localmente:', usuarioAtualizado);
+            
+            // Mostrar mensagem de sucesso
+            alert('Alterações salvas com sucesso!');
+            
+            // Redirecionar para a timeline
+            this.router.navigate(['/timeline']);
+          },
+          error: (error) => {
+            console.error('❌ Erro ao atualizar perfil:', error);
+            alert('Erro ao salvar alterações. Tente novamente.');
+          }
+        });
+      }
     }
   }
 
   // Método para voltar à página anterior
   onVoltar() {
-    this.router.navigate(['/inicio']);
+    this.router.navigate(['/timeline']);
   }
 
   // Método para ir para a página de login (caso precise fazer logout)

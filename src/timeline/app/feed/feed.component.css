@@ -297,6 +297,18 @@
     color: white;
   }
 
+  .user-link {
+    cursor: pointer;
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .user-link:hover {
+    color: #2196f3;
+    text-decoration: underline;
+  }
+
   .produto-img {
     width: 100px;
     border-radius: 8px;

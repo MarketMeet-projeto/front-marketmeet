@@ -18,7 +18,7 @@
     <div class="profile-card">
       <div class="profile-header">
         <div class="profile-photo">
-          <img src="ana_perfil.png" alt="Foto do perfil">
+          <img [src]="profileImage || 'sem_foto_oculos.png'" alt="Foto do perfil">
         </div>
         <div class="profile-info">
           <h3>{{fullName}}</h3>

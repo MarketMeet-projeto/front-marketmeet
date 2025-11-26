@@ -1,6 +1,6 @@
 <div class="feed-container">
   <div class="novo-post-box">
-    <img [src]="currentUser.avatar" alt="User" class="avatar" loading="lazy">
+    <img src="sem_foto_oculos.png" alt="User" class="avatar" loading="lazy">
     <button 
       type="button" 
       class="nova-publicacao-btn"
@@ -91,7 +91,11 @@
     <div class="post-header">
       <img [src]="post.author.avatar" alt="Avatar" class="avatar" loading="lazy" />
       <div class="user-info">
-        <strong>{{ post.author.nome }}</strong>
+        <strong>
+          <a class="user-link" (click)="navigarParaPerfil(post.author.id)">
+            {{ post.author.nome }}
+          </a>
+        </strong>
         <span>{{ post.author.username }} • {{ formatarTempo(post.createdAt) }}</span>
       </div>
       <div class="header-actions">
