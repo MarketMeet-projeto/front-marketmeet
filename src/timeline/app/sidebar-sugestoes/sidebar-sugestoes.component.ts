@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common'; // ✅ necessário para *ngFor
 })
 export class SidebarSugestoesComponent {
   sugestoes = [
-    { nome: 'Tech Insider', seguidores: '1.2k', avatar: 'assets/tech.jpg' },
-    { nome: 'Fashion Mom', seguidores: '856', avatar: 'assets/fashion.jpg' }
+    { nome: 'Tech Insider', seguidores: '1.2k', avatar: 'techinsider_perfil.png' },
+    { nome: 'Fashion Mom', seguidores: '856', avatar: 'fashionMon.png' }
   ];
 }

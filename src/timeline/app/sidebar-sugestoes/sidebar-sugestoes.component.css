@@ -19,7 +19,9 @@
 
     .info {
       flex: 1;
+
       span {
+        display: block;
         font-size: 12px;
         color: gray;
       }
