@@ -242,17 +242,42 @@ export class FeedComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Verificar se o usuário é o proprietário
+    const post = this.posts.find(p => p.id === postId);
+    if (!post) {
+      alert('Post não encontrado');
+      return;
+    }
+
+    const currentUserId = this.authService.getCurrentUserId();
+    if (post.author.id !== String(currentUserId)) {
+      alert('Você não tem permissão para deletar este post');
+      return;
+    }
+
     console.log('[FeedComponent] Deletando post:', postId);
     this.feedService.deletePost(postId).subscribe({
-      next: () => {
-        console.log('[FeedComponent] Post deletado com sucesso');
-        // Remover o post da lista local
-        this.posts = this.posts.filter(post => post.id !== postId);
+      next: (response) => {
+        console.log('[FeedComponent] Post deletado com sucesso:', response);
+        // Nota: FeedService já atualiza o estado, apenas marcamos para detecção
         this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('[FeedComponent] Erro ao deletar post:', error);
-        alert('Erro ao deletar post. Tente novamente.');
+        
+        let mensagem = 'Erro ao deletar post. Tente novamente.';
+        
+        if (error.status === 403) {
+          mensagem = 'Você não tem permissão para deletar este post';
+        } else if (error.status === 404) {
+          mensagem = 'Este post não existe mais';
+        } else if (error.status === 401) {
+          mensagem = 'Você precisa estar autenticado para deletar posts';
+        } else if (error.status === 500) {
+          mensagem = 'Erro no servidor. Tente novamente mais tarde.';
+        }
+        
+        alert(mensagem);
       }
     });
   }

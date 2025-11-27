@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FollowService {
-  private apiUrl = 'http://10.51.47.41:3000/api'; // Base URL do backend
+  private apiUrl = environment.apiBaseUrl; // Base URL do backend
 
   // Armazenar IDs de usuários que o usuário atual está seguindo
   private followingSubject = new BehaviorSubject<Set<string>>(new Set());

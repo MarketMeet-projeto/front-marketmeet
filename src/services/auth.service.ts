@@ -2,13 +2,14 @@ import { Injectable, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://10.51.47.41:3000/api/users';
-  private tokenKey = 'auth_token';
+  private apiUrl = environment.apiBaseUrl + '/users';
+  private tokenKey = environment.authTokenKey;
   private currentUserSubject = new BehaviorSubject<any>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 

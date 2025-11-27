@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Router } from '@angular/router'; // Importar HttpClient
+import { Router } from '@angular/router';
+import { environment } from '../../environments/environment'; // Importar HttpClient
 
 @Component({
   selector: 'app-cadastro',
@@ -16,7 +17,7 @@ export class AppComponent {
   submitted = false;
   showPassword = false;
 
-  private apiUrl = 'http://10.51.47.41:3000/api/users/create'; // URL do backend
+  private apiUrl = environment.apiBaseUrl + '/users/create'; // URL do backend
 
   constructor(
     private fb: FormBuilder,

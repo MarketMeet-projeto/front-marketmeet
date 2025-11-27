@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { Post, User } from '../models/feed.model';
 import { AuthService } from '../../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FeedService {
-  private apiUrl = 'http://10.51.47.41:3000/api'; // Base URL do backend
+  private apiUrl = environment.apiBaseUrl; // Base URL do backend
   
   private currentUser: User = {
     id: '1',
@@ -116,6 +117,17 @@ export class FeedService {
     }
 
     const safeToString = (v: any) => v === null || v === undefined ? '' : String(v);
+    
+    // LOG: Quais campos de ID estão disponíveis?
+    console.group('[FeedService] Campos de ID disponíveis:');
+    console.log('id_post:', backendPost.id_post);
+    console.log('id:', backendPost.id);
+    console.log('post_id:', backendPost.post_id);
+    console.groupEnd();
+    
+    // ID final que será usado
+    const finalId = safeToString(backendPost.id_post ?? backendPost.id ?? '');
+    console.log('✅ [FeedService] ID FINAL MAPEADO:', finalId);
 
     // Normalizar a lista de usuários que curtiram para strings
     // O backend retorna likes como array de { id_user: ... } ou apenas [1, 2, 3]
@@ -139,7 +151,7 @@ export class FeedService {
     console.log('[FeedService] likes_count do backend:', backendPost.likes_count ?? 0);
 
     return {
-      id: safeToString(backendPost.id_post ?? backendPost.id ?? ''),
+      id: finalId,  // Usar o ID já mapeado
       author: {
         id: safeToString(backendPost.id_user ?? backendPost.user_id ?? '0'),
         nome: backendPost.user_name || backendPost.username || 'Usuário',
@@ -152,7 +164,7 @@ export class FeedService {
         midia: backendPost.product_photo || backendPost.media
       },
       produto: backendPost.category ? {
-        id: safeToString(backendPost.id_post ?? backendPost.id ?? ''),
+        id: finalId,  // Usar o mesmo ID do post
         nome: backendPost.product_url || backendPost.product_name || '',
         categoria: backendPost.category || '',
         nota: Number(backendPost.rating ?? 5),
@@ -545,25 +557,69 @@ export class FeedService {
 
   /**
    * Deletar um post
+   * @param postId - ID do post a ser deletado
+   * @returns Observable com resposta do servidor
    */
   deletePost(postId: string): Observable<any> {
-    console.log('[FeedService] deletePost chamado para postId:', postId);
+    console.group('🗑️ [FeedService] Iniciando DELETE de POST');
+    console.log('postId recebido:', postId);
+    console.log('Tipo de postId:', typeof postId);
     
     return new Observable(observer => {
-      this.http.delete<any>(`${this.apiUrl}/posts/${postId}`).subscribe({
+      const deleteUrl = `${this.apiUrl}/posts/${postId}`;
+      console.log('URL final do DELETE:', deleteUrl);
+      console.log('Headers enviados:', {
+        'Authorization': 'Bearer [token]',
+        'Content-Type': 'application/json'
+      });
+      console.groupEnd();
+      
+      this.http.delete<any>(deleteUrl).subscribe({
         next: (response) => {
-          console.log('[FeedService] Post deletado com sucesso:', response);
+          console.group('✅ [FeedService] Resposta recebida do DELETE');
+          console.log('Response:', response);
+          console.log('Success?:', response?.success);
+          console.log('Message:', response?.message || response?.error);
+          console.groupEnd();
           
-          // Remover o post do estado local
-          const posts = this.postsSubject.value.filter(p => p.id !== postId);
-          this.postsSubject.next(posts);
-          console.log('[FeedService] Posts após deleção:', posts.length);
+          // Validar se a resposta indica sucesso
+          if (response?.success === false) {
+            console.error('[FeedService] Erro na resposta:', response.error || response.message);
+            observer.error(response);
+            return;
+          }
           
+          // Remover o post do estado local (BehaviorSubject)
+          const currentPosts = this.postsSubject.value;
+          const postIndex = currentPosts.findIndex(p => p.id === postId);
+          
+          if (postIndex !== -1) {
+            const updatedPosts = currentPosts.filter(p => p.id !== postId);
+            this.postsSubject.next(updatedPosts);
+            console.log('[FeedService] Post removido do estado local. Restando:', updatedPosts.length, 'posts');
+          } else {
+            console.warn('[FeedService] ⚠️ Post não encontrado no estado local:', postId);
+          }
+          
+          console.log('✅ [FeedService] Post deletado com sucesso');
           observer.next(response);
           observer.complete();
         },
         error: (error) => {
-          console.error('[FeedService] Erro ao deletar post:', error);
+          console.group('❌ [FeedService] ERRO ao deletar post');
+          console.error('Status HTTP:', error?.status);
+          console.error('Mensagem:', error?.message);
+          console.error('Resposta completa:', error?.error);
+          
+          // Log específico para erro 404
+          if (error?.status === 404) {
+            console.error('⚠️ Erro 404: Post não encontrado');
+            console.error('ID enviado:', postId);
+            console.error('URL que foi enviada:', deleteUrl);
+            console.error('Possível causa: O ID do post pode não corresponder ao campo de ID no banco de dados');
+          }
+          
+          console.groupEnd();
           observer.error(error);
         }
       });

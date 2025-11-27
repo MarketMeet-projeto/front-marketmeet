@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 
 @Component({
@@ -25,7 +26,7 @@ import { Router, RouterModule } from '@angular/router';
 export class AppComponent implements OnInit {
   loginForm!: FormGroup;
   submitted = false;
-  private apiUrl = 'http://10.51.47.41:3000/api/users/login'; // URL do backend
+  private apiUrl = environment.apiBaseUrl + '/users/login'; // URL do backend
 
   constructor(
     private fb: FormBuilder, 

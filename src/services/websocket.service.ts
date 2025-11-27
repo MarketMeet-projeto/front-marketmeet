@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { io } from 'socket.io-client';
 import type { Socket } from 'socket.io-client';
 import { AuthService } from './auth.service';
+import { environment } from '../environments/environment';
 
 interface WebSocketMessage {
   type: string;
@@ -20,7 +21,7 @@ interface WebSocketEvent {
 })
 export class WebSocketService {
   private socket: Socket | null = null;
-  private wsUrl = 'http://10.51.47.41:3000'; // Mesmo servidor do backend
+  private wsUrl = environment.websocketUrl; // Mesmo servidor do backend
   
   // Observables para diferentes tipos de eventos
   private connectionStatusSubject = new BehaviorSubject<boolean>(false);
@@ -74,9 +75,9 @@ export class WebSocketService {
           userId: user.id_user || user.id
         },
         reconnection: true,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
-        reconnectionAttempts: 5,
+        reconnectionDelay: environment.wsReconnectionDelay,
+        reconnectionDelayMax: environment.wsReconnectionDelayMax,
+        reconnectionAttempts: environment.wsReconnectionAttempts,
         transports: ['websocket', 'polling']
       });
 
