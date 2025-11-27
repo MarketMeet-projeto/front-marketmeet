@@ -39,26 +39,39 @@ export class AppComponent {
   onSubmit() {
     this.submitted = true;
     if (this.cadastroForm.valid) {
-      // Log dos dados que serão enviados
-      console.log('📤 Dados enviados para o backend:', this.cadastroForm.value);
+      const formData = this.cadastroForm.value;
+      console.log('📤 Dados enviados para o backend:', formData);
       
-      // Enviar dados para o backend
-      this.http.post(this.apiUrl, this.cadastroForm.value).subscribe({
+      this.http.post<any>(this.apiUrl, formData).subscribe({
         next: (res) => {
           console.log('✅ Resposta do backend:', res);
           alert('Conta criada com sucesso!');
           this.cadastroForm.reset();
           this.submitted = false;
-          // Navegar para login após sucesso
           this.router.navigate(['/login']);
         },
         error: (err) => {
           console.error('❌ Erro ao criar conta:', err);
-          console.error('Status:', err.status);
-          console.error('Mensagem:', err.error?.message || err.error?.error || err.message);
-          alert(`Erro ao criar conta:\n${err.error?.error || err.message || 'Erro desconhecido'}`);
+          console.error('Status HTTP:', err.status);
+          console.error('Response Body:', err.error);
+          
+          let errorMessage = 'Erro ao criar conta';
+          
+          if (err.error && typeof err.error === 'object') {
+            errorMessage = err.error.error || err.error.message || JSON.stringify(err.error);
+          } else if (typeof err.error === 'string') {
+            errorMessage = err.error;
+          } else if (err.message) {
+            errorMessage = err.message;
+          }
+          
+          console.error('Mensagem final:', errorMessage);
+          alert(errorMessage);
         }
       });
+    } else {
+      console.warn('⚠️ Formulário inválido:', this.cadastroForm.errors);
+      alert('Por favor, preencha todos os campos corretamente');
     }
   }
 

@@ -5,7 +5,6 @@
   max-width: 600px;
   margin: auto;
 }
-
 .novo-post-box {
   display: flex;
   align-items: center;
@@ -13,14 +12,12 @@
   background: #fff;
   border-radius: 10px;
   padding: 16px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 4px rgba(0,0,0,.1);
 }
-
 .avatar-post {
   width: 53px;
   height: 50px;
   border-radius: 50%;
-
 }
 
 .nova-publicacao-btn {
@@ -32,20 +29,18 @@
   background: #f2f2f2;
   color: #666;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all .2s ease;
 }
-
 .nova-publicacao-btn:hover {
   background: #e9ecef;
 }
-
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0,0,0,.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -59,9 +54,8 @@
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0,0,0,.1);
 }
-
 .modal-header {
   padding: 16px;
   border-bottom: 1px solid #eee;
@@ -69,7 +63,6 @@
   justify-content: space-between;
   align-items: center;
 }
-
 .modal-header h2 {
   margin: 0;
   font-size: 1.2rem;
@@ -83,15 +76,12 @@
   cursor: pointer;
   color: #666;
 }
-
 .fechar-btn:hover {
   color: #333;
 }
-
 .modal-body {
   padding: 16px;
 }
-
 .post-textarea {
   width: 100%;
   min-height: 120px;
@@ -439,78 +429,15 @@
     transform: translateY(0);
   }
 
-  /* Animação de curtir (batimento) */
-  @keyframes heart-pulse {
-    0% {
-      transform: scale(1);
-    }
-
-    25% {
-      transform: scale(1.2);
-    }
-
-    50% {
-      transform: scale(0.95);
-    }
-
-    75% {
-      transform: scale(1.05);
-    }
-
-    100% {
-      transform: scale(1);
-    }
-  }
-
-  /* Animação do botão Publicar (click feedback) */
-  @keyframes button-click {
-    0% {
-      transform: scale(1);
-      opacity: 1;
-    }
-
-    50% {
-      transform: scale(0.95);
-      opacity: 0.8;
-    }
-
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  /* Animação do botão Compartilhar */
-  @keyframes share-bounce {
-    0% {
-      transform: scale(1);
-    }
-
-    30% {
-      transform: scale(1.2);
-    }
-
-    60% {
-      transform: scale(0.95);
-    }
-
-    100% {
-      transform: scale(1);
-    }
-  }
-
-  /* Classes que aplicam as animações */
-  .publicar-btn.clicked {
-    animation: button-click 0.3s ease;
-  }
-
-  .share-button.clicked {
-    animation: share-bounce 0.3s ease;
-  }
-
-  .heart-icon.animate {
-    animation: heart-pulse 0.4s ease;
-  }
+  /* Animação de curtir */
+  @keyframes heart-pulse {0%{transform:scale(1)}25%{transform:scale(1.2)}50%{transform:scale(.95)}75%{transform:scale(1.05)}100%{transform:scale(1)}}
+  /* Animação do botão */
+  @keyframes button-click {0%{transform:scale(1);opacity:1}50%{transform:scale(.95);opacity:.8}100%{transform:scale(1);opacity:1}}
+  /* Animação compartilhar */
+  @keyframes share-bounce {0%{transform:scale(1)}30%{transform:scale(1.2)}60%{transform:scale(.95)}100%{transform:scale(1)}}
+  .publicar-btn.clicked{animation:button-click .3s ease}
+  .share-button.clicked{animation:share-bounce .3s ease}
+  .heart-icon.animate{animation:heart-pulse .4s ease}
 
   /* Media Queries para Mobile */
   @media (max-width: 768px) {

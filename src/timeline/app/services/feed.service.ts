@@ -271,7 +271,40 @@ export class FeedService {
     this.http.post<any>(`${this.apiUrl}/posts/create`, postData).subscribe({
       next: (response) => {
         console.log('✅ Sucesso ao criar post:', response);
-        const newPost = this.mapPostFromBackend(response);
+        
+        // A resposta do backend vem como: { success, message, postId, post: {...} }
+        // Vamos usar os dados corretos
+        const postData = response?.post || response;
+        
+        // Criar um post bem formatado com os dados do usuário autenticado
+        const newPost: Post = {
+          id: String(postData.id_post || response.postId || Date.now()),
+          author: {
+            id: this.currentUser.id,
+            nome: this.currentUser.nome,
+            username: this.currentUser.username,
+            avatar: this.currentUser.avatar
+          },
+          createdAt: new Date(postData.created_at || new Date()),
+          content: {
+            texto: postData.caption || content,
+            midia: postData.product_photo
+          },
+          produto: postData.category ? {
+            id: String(postData.id_post || response.postId),
+            nome: postData.product_url || '',
+            categoria: postData.category,
+            nota: postData.rating || 5,
+            imagem: postData.product_photo || ''
+          } : undefined,
+          interacoes: {
+            curtidas: 0,
+            curtidoPor: [],
+            compartilhamentos: 0
+          }
+        };
+        
+        console.log('📝 Post mapeado para exibição:', newPost);
         this.postsSubject.next([newPost, ...this.postsSubject.value]);
         console.log('✅ Post adicionado ao feed');
         console.groupEnd();
@@ -336,8 +369,41 @@ export class FeedService {
     console.log('📤 Enviando post com dados:', postData);
 
     try {
-      const response = await this.http.post<any>(`${this.apiUrl}/posts/create`, postData).toPromise();
-      const newPost = this.mapPostFromBackend(response!);
+      const response: any = await this.http.post<any>(`${this.apiUrl}/posts/create`, postData).toPromise();
+      
+      // A resposta do backend vem como: { success, message, postId, post: {...} }
+      // Vamos usar os dados corretos
+      const postDataFromResponse = response?.post || response;
+      
+      // Criar um post bem formatado com os dados do usuário autenticado
+      const newPost: Post = {
+        id: String(postDataFromResponse.id_post || response.postId || Date.now()),
+        author: {
+          id: this.currentUser.id,
+          nome: this.currentUser.nome,
+          username: this.currentUser.username,
+          avatar: this.currentUser.avatar
+        },
+        createdAt: new Date(postDataFromResponse.created_at || new Date()),
+        content: {
+          texto: postDataFromResponse.caption || content,
+          midia: postDataFromResponse.product_photo
+        },
+        produto: postDataFromResponse.category ? {
+          id: String(postDataFromResponse.id_post || response.postId),
+          nome: postDataFromResponse.product_url || '',
+          categoria: postDataFromResponse.category,
+          nota: postDataFromResponse.rating || 5,
+          imagem: postDataFromResponse.product_photo || ''
+        } : undefined,
+        interacoes: {
+          curtidas: 0,
+          curtidoPor: [],
+          compartilhamentos: 0
+        }
+      };
+      
+      console.log('📝 Post mapeado para exibição:', newPost);
       this.postsSubject.next([newPost, ...this.postsSubject.value]);
       console.log('✅ Post criado com sucesso:', response);
     } catch (error) {
@@ -365,42 +431,74 @@ export class FeedService {
 
   toggleLike(postId: string): void {
     console.log('[FeedService] toggleLike chamado para postId:', postId);
-    console.log('[FeedService] IDs atuais antes do request:', this.postsSubject.value.map(p => p.id));
 
-    // Sempre obter o usuário autenticado no momento da ação (não usar cache)
+    // Sempre obter o usuário autenticado no momento da ação
     const authenticatedUser = this.authService.getCurrentUser();
     const currentUserId = authenticatedUser?.id_user?.toString() || authenticatedUser?.id?.toString() || this.currentUser.id;
-    console.log('[FeedService] currentUserId para operação de like:', currentUserId);
-
+    
     this.http.post<any>(`${this.apiUrl}/posts/${postId}/like`, {}).subscribe({
       next: (response) => {
-        console.log('[FeedService] Resposta completa do backend:', response);
+        console.log('[FeedService] Resposta do like:', response);
         
         const posts = this.postsSubject.value;
         const postIndex = posts.findIndex(p => p.id === postId);
-        console.log('[FeedService] postIndex encontrado:', postIndex);
         
         if (postIndex !== -1) {
-          // Extrair o post da resposta (pode vir em response.post)
-          const postData = response?.post || response;
-          console.log('[FeedService] postData extraído para mapear:', postData);
-          console.log('[FeedService] postData.liked_by:', postData?.liked_by);
-          console.log('[FeedService] postData.likes:', postData?.likes);
-          console.log('[FeedService] postData.likes_count:', postData?.likes_count);
+          const post = posts[postIndex];
           
-          const updatedPost = this.mapPostFromBackend(postData);
-          console.log('[FeedService] Post mapeado após like:', updatedPost);
-          console.log('[FeedService] curtidoPor após mapeamento:', updatedPost.interacoes.curtidoPor);
-          console.log('[FeedService] Tipo dos IDs em curtidoPor:', typeof updatedPost.interacoes.curtidoPor[0]);
+          // O backend retorna: { success, message, action: 'liked' | 'unliked' }
+          // Precisamos atualizar o estado local baseado na ação
+          const action = response?.action;
+          
+          let updatedPost: Post;
+          
+          if (action === 'liked') {
+            // Adicionar like
+            updatedPost = {
+              ...post,
+              interacoes: {
+                ...post.interacoes,
+                curtidas: post.interacoes.curtidas + 1,
+                curtidoPor: [...post.interacoes.curtidoPor, currentUserId]
+              }
+            };
+            console.log('❤️ Post curtido! Novo total:', updatedPost.interacoes.curtidas);
+          } else if (action === 'unliked') {
+            // Remover like
+            updatedPost = {
+              ...post,
+              interacoes: {
+                ...post.interacoes,
+                curtidas: Math.max(0, post.interacoes.curtidas - 1),
+                curtidoPor: post.interacoes.curtidoPor.filter(id => id !== currentUserId)
+              }
+            };
+            console.log('💔 Like removido! Novo total:', updatedPost.interacoes.curtidas);
+          } else {
+            // Se não temos a ação, fazer toggle baseado no estado atual
+            const userLiked = post.interacoes.curtidoPor.includes(currentUserId);
+            updatedPost = {
+              ...post,
+              interacoes: {
+                ...post.interacoes,
+                curtidas: userLiked ? post.interacoes.curtidas - 1 : post.interacoes.curtidas + 1,
+                curtidoPor: userLiked 
+                  ? post.interacoes.curtidoPor.filter(id => id !== currentUserId)
+                  : [...post.interacoes.curtidoPor, currentUserId]
+              }
+            };
+          }
           
           posts[postIndex] = updatedPost;
           this.postsSubject.next([...posts]);
         } else {
-          console.warn('[FeedService] toggleLike: postId não encontrado nos posts locais:', postId);
+          console.warn('[FeedService] Post não encontrado:', postId);
         }
       },
       error: (error) => {
-        console.error('Erro ao curtir post:', error);
+        console.error('❌ Erro ao curtir post:', error);
+        
+        // Fallback: fazer toggle local baseado no estado atual
         const posts = this.postsSubject.value;
         const postIndex = posts.findIndex(p => p.id === postId);
         
@@ -428,7 +526,7 @@ export class FeedService {
 
   // Curtir post (async/await)
   async toggleLikeAsync(postId: string): Promise<void> {
-    // Sempre obter o usuário autenticado no momento da ação (não usar cache)
+    // Sempre obter o usuário autenticado no momento da ação
     const authenticatedUser = this.authService.getCurrentUser();
     const currentUserId = authenticatedUser?.id_user?.toString() || authenticatedUser?.id?.toString() || this.currentUser.id;
 
@@ -438,9 +536,45 @@ export class FeedService {
       const postIndex = posts.findIndex(p => p.id === postId);
       
       if (postIndex !== -1) {
-        // Extrair o post da resposta (pode vir em response.post)
-        const postData = response?.post || response;
-        const updatedPost = this.mapPostFromBackend(postData);
+        const post = posts[postIndex];
+        
+        // O backend retorna: { success, message, action: 'liked' | 'unliked' }
+        const action = response?.action;
+        
+        let updatedPost: Post;
+        
+        if (action === 'liked') {
+          updatedPost = {
+            ...post,
+            interacoes: {
+              ...post.interacoes,
+              curtidas: post.interacoes.curtidas + 1,
+              curtidoPor: [...post.interacoes.curtidoPor, currentUserId]
+            }
+          };
+        } else if (action === 'unliked') {
+          updatedPost = {
+            ...post,
+            interacoes: {
+              ...post.interacoes,
+              curtidas: Math.max(0, post.interacoes.curtidas - 1),
+              curtidoPor: post.interacoes.curtidoPor.filter(id => id !== currentUserId)
+            }
+          };
+        } else {
+          const userLiked = post.interacoes.curtidoPor.includes(currentUserId);
+          updatedPost = {
+            ...post,
+            interacoes: {
+              ...post.interacoes,
+              curtidas: userLiked ? post.interacoes.curtidas - 1 : post.interacoes.curtidas + 1,
+              curtidoPor: userLiked 
+                ? post.interacoes.curtidoPor.filter(id => id !== currentUserId)
+                : [...post.interacoes.curtidoPor, currentUserId]
+            }
+          };
+        }
+        
         posts[postIndex] = updatedPost;
         this.postsSubject.next([...posts]);
       }
